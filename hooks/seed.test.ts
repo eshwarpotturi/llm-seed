@@ -92,3 +92,11 @@ test('missing question shows how to use it', async $ => {
   const out = await $.command.run({ command: 'seed', args: '42' })
   expect(out.text).toContain('Usage: /seed')
 })
+
+test('several /seed lines pasted together are refused, and nothing is asked or pinned', async ($, on) => {
+  const files = disk(on)
+  const count = model(on)
+  const out = await $.command.run({ command: 'seed', args: '42 Write a slogan.\n/seed 43 Write a slogan.' })
+  expect(out.text).toContain('one /seed line at a time')
+  expect([count.draws, files.size]).toEqual([0, 0])
+})

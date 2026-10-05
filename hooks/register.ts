@@ -57,6 +57,9 @@ export const register: Register = on => {
   on('command.run', { command: 'seed' }, async ($, e) => {
     const asked = parse(e.args)
     if (!asked) return { text: USAGE }
+    if (/\n\s*\/seed\b/.test(asked.question)) {
+      return { text: 'Send one /seed line at a time. Several were pasted together, so nothing was asked or pinned.' }
+    }
     const path = await pathOf(asked.seed, asked.question)
 
     if (await $.fs.exists(path)) {
