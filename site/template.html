@@ -205,7 +205,7 @@ footer{margin-top:128px;border-top:2px solid var(--ink);padding-top:20px;display
     <details><summary>Show these numbers as a table</summary><div class="datatable" id="unit-table"></div></details>
   </figure>
 
-  <p>The creative question gave <b>22 different slogans in 30 asks</b>. The factual one gave the same fact in 2 wordings. And the one question that asked for randomness got none.</p>
+  <p>The creative question gave <b>__SLOGAN_DISTINCT__ different slogans in 30 asks</b>. The factual one gave the same fact in __CAPITAL_DISTINCT__ wordings. And the one question that asked for randomness got none.</p>
 
   <figure class="fig">
     <h3>"Pick a random number between 1 and 100"</h3>
@@ -213,14 +213,14 @@ footer{margin-top:128px;border-top:2px solid var(--ink);padding-top:20px;display
       <div class="hundred" id="hundred" role="img" aria-label="A grid of the numbers 1 to 100. Only 42 is filled."></div>
       <div>
         <div class="big">42, every time</div>
-        <p>All 30 asks returned the same number. Each grey cell is a number the model never picked. An LLM is not random where you expect it to be, and it is random where you do not.</p>
+        <p>All __NUMBER_N__ asks returned the same number. Each grey cell is a number the model never picked. An LLM is not random where you expect it to be, and it is random where you do not.</p>
       </div>
     </div>
   </figure>
 
   <figure class="fig">
     <h3>The slogans vary, but less than they seem to</h3>
-    <p>29 of the 30 slogans opened with the same five words. Only the ending changed.</p>
+    <p>__STEM_N__ of the 30 slogans opened with the same five words. Only the ending changed.</p>
     <div class="stem">"Turning data into decisions, …</div>
     <ul class="ends" id="ends"></ul>
     <p class="quiet" id="odd"></p>
@@ -234,13 +234,13 @@ footer{margin-top:128px;border-top:2px solid var(--ink);padding-top:20px;display
   <figure class="fig">
     <h3>The same slogan question, asked 30 more times with seed 1</h3>
     <div class="units" id="units2"></div>
-    <p class="quiet">All 30 replies carried the same fingerprint, <span class="mono">b29369701c51</span>. A fingerprint is the start of a SHA-256 hash of the answer text, so one fingerprint means one text.</p>
+    <p class="quiet">All 30 replies carried the same fingerprint, <span class="mono">__REPLAY_FP__</span>. A fingerprint is the start of a SHA-256 hash of the answer text, so one fingerprint means one text.</p>
   </figure>
   <pre><span class="k">/seed 1</span> Write a one-line slogan for an AI analytics team.
 
-"Turning Data Into Decisions, Insights Into Impact."
+__REPLAY_ANSWER__
 
-— seed 1 · replayed, identical to the first draw · model haiku · fingerprint b29369701c51</pre>
+— seed 1 · replayed, identical to the first draw · model haiku · fingerprint __REPLAY_FP__</pre>
 </section>
 
 <section class="step" id="s3">
@@ -325,7 +325,7 @@ claude --plugin-dir .
 </section>
 
 <footer>
-  <p class="quiet"><b>How the numbers were made.</b> 120 runs on 5 October 2026 with Claude Haiku through the mod: three questions with 30 different seeds each (so 30 separate first answers per question), then one seed asked 30 more times. Two answers count as the same only if the text matches exactly, including capital letters. Thirty asks is a small sample: the counts would shift on another day or another model.</p>
+  <p class="quiet"><b>How the numbers were made.</b> __TOTAL__ runs on 5 October 2026 with Claude Haiku through the mod: three questions with 30 different seeds each (so 30 separate first answers per question), then one seed asked 30 more times. Two answers count as the same only if the text matches exactly, including capital letters. Thirty asks is a small sample: the counts would shift on another day or another model.</p>
   <p class="quiet">Every answer is in <a href="data/experiment.json">the data file</a>. The code and a longer read-me are at <a href="https://github.com/eshwarpotturi/llm-seed">github.com/eshwarpotturi/llm-seed</a>. A personal demo, not an official product of any organisation.</p>
 </footer>
 </main>
@@ -333,7 +333,7 @@ claude --plugin-dir .
 <div id="tip" role="status"></div>
 
 <script>
-const DATA = {"slogan": ["\"Turning Data Into Decisions, Insights Into Impact.\"", "\"Turning data into decisions, fast.\"", "\"Turning data into decisions, at the speed of thought.\"", "\"Turning data into decisions, one insight at a time.\"", "\"Turning data into decisions, one model at a time.\"", "\"Turning Data Into Decisions, Decisions Into Impact.\"", "\"Turning data into decisions, automatically.\"", "\"Turning data into decisions, one insight at a time.\"", "\"Turning data into decisions, one model at a time.\"", "\"Turning data into decisions, faster than humans can think.\"", "\"Turning Data Into Decisions, Decisions Into Impact.\"", "\"Turning Data into Decisions, at the Speed of Intelligence.\"", "\"Turning data into decisions, at the speed of thought.\"", "\"Turning data into decisions, faster than ever before.\"", "\"Turning data into decisions, faster and smarter.\"", "\"Turning Data into Decisions, Intelligence into Impact.\"", "\"Turning data into decisions, insights into impact.\"", "\"Turning data into decisions, faster than thought.\"", "\"Turning data into decisions, one insight at a time.\"", "\"Turning data into decisions, one algorithm at a time.\"", "\"Turning Data Into Decisions, One Insight at a Time\"", "\"Turning data into decisions, insights into impact.\"", "**\"Turning data into decisions, at the speed of intelligence.\"**", "\"Turning Data Into Decisions, One Insight at a Time.\"", "\"Turning data into decisions, decisions into impact.\"", "\"Turning data into decisions, one insight at a time.\"", "\"Turning data into decisions, decisions into impact.\"", "\"Turning Data Into Decisions, At Machine Speed.\"", "\"Turning data into decisions, faster than ever.\"", "\"Turning data into decisions, faster than humans can ask the questions.\""], "number": ["42", "42", "42", "42", "42", "42", "42", "42", "42", "42", "42", "42", "42", "42", "42", "42", "42", "42", "42", "42", "42", "42", "42", "42", "42", "42", "42", "42", "42", "42"], "capital": ["The capital of France is Paris.", "Paris is the capital of France.", "The capital of France is Paris.", "The capital of France is Paris.", "Paris is the capital of France.", "Paris is the capital of France.", "Paris is the capital of France.", "The capital of France is Paris.", "Paris is the capital of France.", "The capital of France is Paris.", "Paris is the capital of France.", "Paris is the capital of France.", "The capital of France is Paris.", "Paris is the capital of France.", "Paris is the capital of France.", "Paris is the capital of France.", "Paris is the capital of France.", "Paris is the capital of France.", "Paris is the capital of France.", "Paris is the capital of France.", "The capital of France is Paris.", "Paris is the capital of France.", "The capital of France is Paris.", "The capital of France is Paris.", "The capital of France is Paris.", "The capital of France is Paris.", "Paris is the capital of France.", "Paris is the capital of France.", "Paris is the capital of France.", "Paris is the capital of France."], "replay": ["\"Turning Data Into Decisions, Insights Into Impact.\"", "\"Turning Data Into Decisions, Insights Into Impact.\"", "\"Turning Data Into Decisions, Insights Into Impact.\"", "\"Turning Data Into Decisions, Insights Into Impact.\"", "\"Turning Data Into Decisions, Insights Into Impact.\"", "\"Turning Data Into Decisions, Insights Into Impact.\"", "\"Turning Data Into Decisions, Insights Into Impact.\"", "\"Turning Data Into Decisions, Insights Into Impact.\"", "\"Turning Data Into Decisions, Insights Into Impact.\"", "\"Turning Data Into Decisions, Insights Into Impact.\"", "\"Turning Data Into Decisions, Insights Into Impact.\"", "\"Turning Data Into Decisions, Insights Into Impact.\"", "\"Turning Data Into Decisions, Insights Into Impact.\"", "\"Turning Data Into Decisions, Insights Into Impact.\"", "\"Turning Data Into Decisions, Insights Into Impact.\"", "\"Turning Data Into Decisions, Insights Into Impact.\"", "\"Turning Data Into Decisions, Insights Into Impact.\"", "\"Turning Data Into Decisions, Insights Into Impact.\"", "\"Turning Data Into Decisions, Insights Into Impact.\"", "\"Turning Data Into Decisions, Insights Into Impact.\"", "\"Turning Data Into Decisions, Insights Into Impact.\"", "\"Turning Data Into Decisions, Insights Into Impact.\"", "\"Turning Data Into Decisions, Insights Into Impact.\"", "\"Turning Data Into Decisions, Insights Into Impact.\"", "\"Turning Data Into Decisions, Insights Into Impact.\"", "\"Turning Data Into Decisions, Insights Into Impact.\"", "\"Turning Data Into Decisions, Insights Into Impact.\"", "\"Turning Data Into Decisions, Insights Into Impact.\"", "\"Turning Data Into Decisions, Insights Into Impact.\"", "\"Turning Data Into Decisions, Insights Into Impact.\""]};
+const DATA = __DATA__;
 
 // ---------- helpers
 const groupsOf = list => {

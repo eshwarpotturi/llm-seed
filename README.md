@@ -275,6 +275,25 @@ command, with answers that are shared through the project.
 - **Mods are a new Claude Code feature**, so this needs a version that supports
   them.
 
+## The experiment behind the project page
+
+The [project page](https://eshwarpotturi.github.io/llm-seed/) shows results from
+120 real runs on 5 October 2026 with Claude Haiku:
+
+| Question | Asks | Different answers |
+|---|---|---|
+| Write a one-line slogan for an AI analytics team | 30, each with its own seed | 22 |
+| What is the capital of France? | 30, each with its own seed | 2 wordings of the same fact |
+| Pick a random number between 1 and 100 | 30, each with its own seed | 1 (it was 42 every time) |
+| The slogan question again, with seed 1 | 30 | 1, with one fingerprint |
+
+Two answers count as the same only if the text matches exactly. Thirty asks is a
+small sample, so the counts would shift on another day or another model. Every
+answer is in `data/experiment.json`.
+
+The page is built from that file: `python3 site/build.py` fills
+`site/template.html` and writes `index.html`.
+
 ## For developers
 
 | File | What it is |

@@ -1,0 +1,858 @@
+{
+ "questions": {
+  "slogan": "Write a one-line slogan for an AI analytics team.",
+  "number": "Pick a random number between 1 and 100. Reply with only the number.",
+  "capital": "What is the capital of France? Reply in one short sentence."
+ },
+ "runs": {
+  "slogan": [
+   {
+    "seed": 1,
+    "answer": "\"Turning Data Into Decisions, Insights Into Impact.\"",
+    "foot": "1 · first draw, pinned in seeds/1-afc87efb6e7b4c8c.json · model haiku · drawn 2026-10-05T17:11:32.299Z · fingerprint b29369701c51",
+    "secs": 9.568,
+    "rc": 0
+   },
+   {
+    "seed": 2,
+    "answer": "\"Turning data into decisions, fast.\"",
+    "foot": "2 · first draw, pinned in seeds/2-db5fe3ce8da3de26.json · model haiku · drawn 2026-10-05T17:11:33.148Z · fingerprint 94befa0fd4b9",
+    "secs": 10.202,
+    "rc": 0
+   },
+   {
+    "seed": 3,
+    "answer": "\"Turning data into decisions, at the speed of thought.\"",
+    "foot": "3 · first draw, pinned in seeds/3-1ab5fce30f5b65db.json · model haiku · drawn 2026-10-05T17:11:33.116Z · fingerprint fe09a4b65a34",
+    "secs": 9.977,
+    "rc": 0
+   },
+   {
+    "seed": 4,
+    "answer": "\"Turning data into decisions, one insight at a time.\"",
+    "foot": "4 · first draw, pinned in seeds/4-d5719db05ecc1200.json · model haiku · drawn 2026-10-05T17:11:33.252Z · fingerprint f3b787d2e728",
+    "secs": 10.199,
+    "rc": 0
+   },
+   {
+    "seed": 5,
+    "answer": "\"Turning data into decisions, one model at a time.\"",
+    "foot": "5 · first draw, pinned in seeds/5-81dc21f1d7197ddf.json · model haiku · drawn 2026-10-05T17:11:32.958Z · fingerprint d546afaa54d7",
+    "secs": 9.736,
+    "rc": 0
+   },
+   {
+    "seed": 6,
+    "answer": "\"Turning Data Into Decisions, Decisions Into Impact.\"",
+    "foot": "6 · first draw, pinned in seeds/6-84c21e056c247260.json · model haiku · drawn 2026-10-05T17:11:41.715Z · fingerprint 36031d5ed5d9",
+    "secs": 9.22,
+    "rc": 0
+   },
+   {
+    "seed": 7,
+    "answer": "\"Turning data into decisions, automatically.\"",
+    "foot": "7 · first draw, pinned in seeds/7-7032e524d5d150ff.json · model haiku · drawn 2026-10-05T17:11:41.617Z · fingerprint a951014310ec",
+    "secs": 8.972,
+    "rc": 0
+   },
+   {
+    "seed": 8,
+    "answer": "\"Turning data into decisions, one insight at a time.\"",
+    "foot": "8 · first draw, pinned in seeds/8-4292b9251b2fb34e.json · model haiku · drawn 2026-10-05T17:11:42.479Z · fingerprint f3b787d2e728",
+    "secs": 9.531,
+    "rc": 0
+   },
+   {
+    "seed": 9,
+    "answer": "\"Turning data into decisions, one model at a time.\"",
+    "foot": "9 · first draw, pinned in seeds/9-4b9f619212cce98a.json · model haiku · drawn 2026-10-05T17:11:42.525Z · fingerprint d546afaa54d7",
+    "secs": 9.301,
+    "rc": 0
+   },
+   {
+    "seed": 10,
+    "answer": "\"Turning data into decisions, faster than humans can think.\"",
+    "foot": "10 · first draw, pinned in seeds/10-6fb14e757c15b8b8.json · model haiku · drawn 2026-10-05T17:11:42.412Z · fingerprint b1bf0b7c8e8c",
+    "secs": 9.109,
+    "rc": 0
+   },
+   {
+    "seed": 11,
+    "answer": "\"Turning Data Into Decisions, Decisions Into Impact.\"",
+    "foot": "11 · first draw, pinned in seeds/11-40ab0ddf8c2bdde8.json · model haiku · drawn 2026-10-05T17:11:51.480Z · fingerprint 36031d5ed5d9",
+    "secs": 9.848,
+    "rc": 0
+   },
+   {
+    "seed": 12,
+    "answer": "\"Turning Data into Decisions, at the Speed of Intelligence.\"",
+    "foot": "12 · first draw, pinned in seeds/12-13788ff749159964.json · model haiku · drawn 2026-10-05T17:11:51.204Z · fingerprint 7817fb9e40f8",
+    "secs": 9.537,
+    "rc": 0
+   },
+   {
+    "seed": 13,
+    "answer": "\"Turning data into decisions, at the speed of thought.\"",
+    "foot": "13 · first draw, pinned in seeds/13-25023652de18d723.json · model haiku · drawn 2026-10-05T17:11:52.411Z · fingerprint fe09a4b65a34",
+    "secs": 10.141,
+    "rc": 0
+   },
+   {
+    "seed": 14,
+    "answer": "\"Turning data into decisions, faster than ever before.\"",
+    "foot": "14 · first draw, pinned in seeds/14-fd36c17482da0c9a.json · model haiku · drawn 2026-10-05T17:11:52.238Z · fingerprint 006dec48aef7",
+    "secs": 9.602,
+    "rc": 0
+   },
+   {
+    "seed": 15,
+    "answer": "\"Turning data into decisions, faster and smarter.\"",
+    "foot": "15 · first draw, pinned in seeds/15-42beaf4afd3381b6.json · model haiku · drawn 2026-10-05T17:11:52.507Z · fingerprint 6c755da66981",
+    "secs": 9.917,
+    "rc": 0
+   },
+   {
+    "seed": 16,
+    "answer": "\"Turning Data into Decisions, Intelligence into Impact.\"",
+    "foot": "16 · first draw, pinned in seeds/16-950eaf7243fb21e3.json · model haiku · drawn 2026-10-05T17:11:59.244Z · fingerprint f196974c40bb",
+    "secs": 8.147,
+    "rc": 0
+   },
+   {
+    "seed": 17,
+    "answer": "\"Turning data into decisions, insights into impact.\"",
+    "foot": "17 · first draw, pinned in seeds/17-d66a946b00f78b22.json · model haiku · drawn 2026-10-05T17:11:59.738Z · fingerprint effed6a7970d",
+    "secs": 8.381,
+    "rc": 0
+   },
+   {
+    "seed": 18,
+    "answer": "\"Turning data into decisions, faster than thought.\"",
+    "foot": "18 · first draw, pinned in seeds/18-3c8b0954a0d8e611.json · model haiku · drawn 2026-10-05T17:12:01.042Z · fingerprint 9672cad3b71f",
+    "secs": 8.771,
+    "rc": 0
+   },
+   {
+    "seed": 19,
+    "answer": "\"Turning data into decisions, one insight at a time.\"",
+    "foot": "19 · first draw, pinned in seeds/19-1e97d36d8d17fa2d.json · model haiku · drawn 2026-10-05T17:12:01.199Z · fingerprint f3b787d2e728",
+    "secs": 8.74,
+    "rc": 0
+   },
+   {
+    "seed": 20,
+    "answer": "\"Turning data into decisions, one algorithm at a time.\"",
+    "foot": "20 · first draw, pinned in seeds/20-edbfdfb0123d94ee.json · model haiku · drawn 2026-10-05T17:12:01.186Z · fingerprint 54313342fc46",
+    "secs": 8.613,
+    "rc": 0
+   },
+   {
+    "seed": 21,
+    "answer": "\"Turning Data Into Decisions, One Insight at a Time\"",
+    "foot": "21 · first draw, pinned in seeds/21-4fa5bd2aae4c66cd.json · model haiku · drawn 2026-10-05T17:12:07.348Z · fingerprint 0d969c282536",
+    "secs": 8.043,
+    "rc": 0
+   },
+   {
+    "seed": 22,
+    "answer": "\"Turning data into decisions, insights into impact.\"",
+    "foot": "22 · first draw, pinned in seeds/22-bff6260b1ec2df7d.json · model haiku · drawn 2026-10-05T17:12:08.472Z · fingerprint effed6a7970d",
+    "secs": 8.838,
+    "rc": 0
+   },
+   {
+    "seed": 23,
+    "answer": "**\"Turning data into decisions, at the speed of intelligence.\"**",
+    "foot": "23 · first draw, pinned in seeds/23-f25c22aecf1af4a0.json · model haiku · drawn 2026-10-05T17:12:10.206Z · fingerprint 12a79928d66f",
+    "secs": 9.205,
+    "rc": 0
+   },
+   {
+    "seed": 24,
+    "answer": "\"Turning Data Into Decisions, One Insight at a Time.\"",
+    "foot": "24 · first draw, pinned in seeds/24-9f9c2e4a3ed961fd.json · model haiku · drawn 2026-10-05T17:12:10.290Z · fingerprint 26c9bef50cb3",
+    "secs": 9.04,
+    "rc": 0
+   },
+   {
+    "seed": 25,
+    "answer": "\"Turning data into decisions, decisions into impact.\"",
+    "foot": "25 · first draw, pinned in seeds/25-6464b0bc9f30bb6b.json · model haiku · drawn 2026-10-05T17:12:10.578Z · fingerprint 24b3b6214b24",
+    "secs": 9.299,
+    "rc": 0
+   },
+   {
+    "seed": 26,
+    "answer": "\"Turning data into decisions, one insight at a time.\"",
+    "foot": "26 · first draw, pinned in seeds/26-a7bce4c4552a4f44.json · model haiku · drawn 2026-10-05T17:12:14.401Z · fingerprint f3b787d2e728",
+    "secs": 7.17,
+    "rc": 0
+   },
+   {
+    "seed": 27,
+    "answer": "\"Turning data into decisions, decisions into impact.\"",
+    "foot": "27 · first draw, pinned in seeds/27-e49db7de54774b79.json · model haiku · drawn 2026-10-05T17:12:16.705Z · fingerprint 24b3b6214b24",
+    "secs": 8.012,
+    "rc": 0
+   },
+   {
+    "seed": 28,
+    "answer": "\"Turning Data Into Decisions, At Machine Speed.\"",
+    "foot": "28 · first draw, pinned in seeds/28-55e439a2508f46a9.json · model haiku · drawn 2026-10-05T17:12:18.450Z · fingerprint ccca482e990c",
+    "secs": 8.118,
+    "rc": 0
+   },
+   {
+    "seed": 29,
+    "answer": "\"Turning data into decisions, faster than ever.\"",
+    "foot": "29 · first draw, pinned in seeds/29-7c9bd06accfd8ea2.json · model haiku · drawn 2026-10-05T17:12:18.472Z · fingerprint eb74bf81eb98",
+    "secs": 8.252,
+    "rc": 0
+   },
+   {
+    "seed": 30,
+    "answer": "\"Turning data into decisions, faster than humans can ask the questions.\"",
+    "foot": "30 · first draw, pinned in seeds/30-0f700487dd135fbf.json · model haiku · drawn 2026-10-05T17:12:18.634Z · fingerprint 81374c9ae544",
+    "secs": 8.027,
+    "rc": 0
+   }
+  ],
+  "number": [
+   {
+    "seed": 1,
+    "answer": "42",
+    "foot": "1 · replayed, identical to the first draw · model haiku · drawn 2026-10-05T17:11:00.595Z · fingerprint 73475cb40a56",
+    "secs": 9.738,
+    "rc": 0
+   },
+   {
+    "seed": 2,
+    "answer": "42",
+    "foot": "2 · first draw, pinned in seeds/2-d83e6ecce8e16822.json · model haiku · drawn 2026-10-05T17:12:28.373Z · fingerprint 73475cb40a56",
+    "secs": 9.882,
+    "rc": 0
+   },
+   {
+    "seed": 3,
+    "answer": "42",
+    "foot": "3 · first draw, pinned in seeds/3-29b3044870492682.json · model haiku · drawn 2026-10-05T17:12:28.189Z · fingerprint 73475cb40a56",
+    "secs": 9.605,
+    "rc": 0
+   },
+   {
+    "seed": 4,
+    "answer": "42",
+    "foot": "4 · first draw, pinned in seeds/4-f43da95772a66d2b.json · model haiku · drawn 2026-10-05T17:12:28.405Z · fingerprint 73475cb40a56",
+    "secs": 9.863,
+    "rc": 0
+   },
+   {
+    "seed": 5,
+    "answer": "42",
+    "foot": "5 · first draw, pinned in seeds/5-a35ef5efbad2d77f.json · model haiku · drawn 2026-10-05T17:12:28.277Z · fingerprint 73475cb40a56",
+    "secs": 9.866,
+    "rc": 0
+   },
+   {
+    "seed": 6,
+    "answer": "42",
+    "foot": "6 · first draw, pinned in seeds/6-94cede55e79a4389.json · model haiku · drawn 2026-10-05T17:12:36.860Z · fingerprint 73475cb40a56",
+    "secs": 9.015,
+    "rc": 0
+   },
+   {
+    "seed": 7,
+    "answer": "42",
+    "foot": "7 · first draw, pinned in seeds/7-faaadbdad5d1e516.json · model haiku · drawn 2026-10-05T17:12:36.858Z · fingerprint 73475cb40a56",
+    "secs": 8.703,
+    "rc": 0
+   },
+   {
+    "seed": 8,
+    "answer": "42",
+    "foot": "8 · first draw, pinned in seeds/8-c8afeacf464f535f.json · model haiku · drawn 2026-10-05T17:12:38.053Z · fingerprint 73475cb40a56",
+    "secs": 9.631,
+    "rc": 0
+   },
+   {
+    "seed": 9,
+    "answer": "42",
+    "foot": "9 · first draw, pinned in seeds/9-1ed04c1af7da9778.json · model haiku · drawn 2026-10-05T17:12:38.351Z · fingerprint 73475cb40a56",
+    "secs": 9.896,
+    "rc": 0
+   },
+   {
+    "seed": 10,
+    "answer": "42",
+    "foot": "10 · first draw, pinned in seeds/10-c348bcb62b5e1591.json · model haiku · drawn 2026-10-05T17:12:37.737Z · fingerprint 73475cb40a56",
+    "secs": 9.381,
+    "rc": 0
+   },
+   {
+    "seed": 11,
+    "answer": "42",
+    "foot": "11 · first draw, pinned in seeds/11-7c0c4ffc0d28dcf7.json · model haiku · drawn 2026-10-05T17:12:45.472Z · fingerprint 73475cb40a56",
+    "secs": 8.769,
+    "rc": 0
+   },
+   {
+    "seed": 12,
+    "answer": "42",
+    "foot": "12 · first draw, pinned in seeds/12-abcf57e33aa75b3d.json · model haiku · drawn 2026-10-05T17:12:45.724Z · fingerprint 73475cb40a56",
+    "secs": 8.833,
+    "rc": 0
+   },
+   {
+    "seed": 13,
+    "answer": "42",
+    "foot": "13 · first draw, pinned in seeds/13-f70ddbc182092d0e.json · model haiku · drawn 2026-10-05T17:12:47.402Z · fingerprint 73475cb40a56",
+    "secs": 9.613,
+    "rc": 0
+   },
+   {
+    "seed": 14,
+    "answer": "42",
+    "foot": "14 · first draw, pinned in seeds/14-db74ddff00555959.json · model haiku · drawn 2026-10-05T17:12:47.127Z · fingerprint 73475cb40a56",
+    "secs": 9.085,
+    "rc": 0
+   },
+   {
+    "seed": 15,
+    "answer": "42",
+    "foot": "15 · first draw, pinned in seeds/15-5e0591454c8627b9.json · model haiku · drawn 2026-10-05T17:12:47.427Z · fingerprint 73475cb40a56",
+    "secs": 9.152,
+    "rc": 0
+   },
+   {
+    "seed": 16,
+    "answer": "42",
+    "foot": "16 · first draw, pinned in seeds/16-9cb437b051739f8e.json · model haiku · drawn 2026-10-05T17:12:53.539Z · fingerprint 73475cb40a56",
+    "secs": 8.059,
+    "rc": 0
+   },
+   {
+    "seed": 17,
+    "answer": "42",
+    "foot": "17 · first draw, pinned in seeds/17-6d5e11f128db482d.json · model haiku · drawn 2026-10-05T17:12:54.743Z · fingerprint 73475cb40a56",
+    "secs": 9.018,
+    "rc": 0
+   },
+   {
+    "seed": 18,
+    "answer": "42",
+    "foot": "18 · first draw, pinned in seeds/18-a594401ae59fc013.json · model haiku · drawn 2026-10-05T17:12:56.330Z · fingerprint 73475cb40a56",
+    "secs": 9.051,
+    "rc": 0
+   },
+   {
+    "seed": 19,
+    "answer": "42",
+    "foot": "19 · first draw, pinned in seeds/19-b12ee444731bf084.json · model haiku · drawn 2026-10-05T17:12:56.507Z · fingerprint 73475cb40a56",
+    "secs": 8.9,
+    "rc": 0
+   },
+   {
+    "seed": 20,
+    "answer": "42",
+    "foot": "20 · first draw, pinned in seeds/20-ee7c5f114c8d3d3d.json · model haiku · drawn 2026-10-05T17:12:56.530Z · fingerprint 73475cb40a56",
+    "secs": 8.96,
+    "rc": 0
+   },
+   {
+    "seed": 21,
+    "answer": "42",
+    "foot": "21 · first draw, pinned in seeds/21-e28bb2d0b50881ca.json · model haiku · drawn 2026-10-05T17:13:00.580Z · fingerprint 73475cb40a56",
+    "secs": 6.938,
+    "rc": 0
+   },
+   {
+    "seed": 22,
+    "answer": "42",
+    "foot": "22 · first draw, pinned in seeds/22-4b8b8dfe50cbb8b8.json · model haiku · drawn 2026-10-05T17:13:03.637Z · fingerprint 73475cb40a56",
+    "secs": 8.772,
+    "rc": 0
+   },
+   {
+    "seed": 23,
+    "answer": "42",
+    "foot": "23 · first draw, pinned in seeds/23-bf5d320456ed7e1a.json · model haiku · drawn 2026-10-05T17:13:04.295Z · fingerprint 73475cb40a56",
+    "secs": 8.205,
+    "rc": 0
+   },
+   {
+    "seed": 24,
+    "answer": "42",
+    "foot": "24 · first draw, pinned in seeds/24-dcf5e7564e83bc6f.json · model haiku · drawn 2026-10-05T17:13:04.835Z · fingerprint 73475cb40a56",
+    "secs": 8.43,
+    "rc": 0
+   },
+   {
+    "seed": 25,
+    "answer": "42",
+    "foot": "25 · first draw, pinned in seeds/25-4d21a447ac1e6582.json · model haiku · drawn 2026-10-05T17:13:05.260Z · fingerprint 73475cb40a56",
+    "secs": 8.694,
+    "rc": 0
+   },
+   {
+    "seed": 26,
+    "answer": "42",
+    "foot": "26 · first draw, pinned in seeds/26-31854a8b09123f42.json · model haiku · drawn 2026-10-05T17:13:07.562Z · fingerprint 73475cb40a56",
+    "secs": 6.595,
+    "rc": 0
+   },
+   {
+    "seed": 27,
+    "answer": "42",
+    "foot": "27 · first draw, pinned in seeds/27-9a45faade95169aa.json · model haiku · drawn 2026-10-05T17:13:10.739Z · fingerprint 73475cb40a56",
+    "secs": 7.256,
+    "rc": 0
+   },
+   {
+    "seed": 28,
+    "answer": "42",
+    "foot": "28 · first draw, pinned in seeds/28-82cb95c5531c37ad.json · model haiku · drawn 2026-10-05T17:13:11.997Z · fingerprint 73475cb40a56",
+    "secs": 7.709,
+    "rc": 0
+   },
+   {
+    "seed": 29,
+    "answer": "42",
+    "foot": "29 · first draw, pinned in seeds/29-7dc2c30d18f6b642.json · model haiku · drawn 2026-10-05T17:13:12.497Z · fingerprint 73475cb40a56",
+    "secs": 7.534,
+    "rc": 0
+   },
+   {
+    "seed": 30,
+    "answer": "42",
+    "foot": "30 · first draw, pinned in seeds/30-bd76c18768480087.json · model haiku · drawn 2026-10-05T17:13:12.733Z · fingerprint 73475cb40a56",
+    "secs": 7.405,
+    "rc": 0
+   }
+  ],
+  "capital": [
+   {
+    "seed": 1,
+    "answer": "The capital of France is Paris.",
+    "foot": "1 · first draw, pinned in seeds/1-d69f1009629e72c0.json · model haiku · drawn 2026-10-05T17:13:22.187Z · fingerprint a1b7eb2ee7a6",
+    "secs": 9.61,
+    "rc": 0
+   },
+   {
+    "seed": 2,
+    "answer": "Paris is the capital of France.",
+    "foot": "2 · first draw, pinned in seeds/2-2ed13c1804241869.json · model haiku · drawn 2026-10-05T17:13:22.644Z · fingerprint 557be7eca214",
+    "secs": 10.124,
+    "rc": 0
+   },
+   {
+    "seed": 3,
+    "answer": "The capital of France is Paris.",
+    "foot": "3 · first draw, pinned in seeds/3-dce4b01dfe4f5e6b.json · model haiku · drawn 2026-10-05T17:13:22.299Z · fingerprint a1b7eb2ee7a6",
+    "secs": 9.844,
+    "rc": 0
+   },
+   {
+    "seed": 4,
+    "answer": "The capital of France is Paris.",
+    "foot": "4 · first draw, pinned in seeds/4-38d38317dd60b453.json · model haiku · drawn 2026-10-05T17:13:22.072Z · fingerprint a1b7eb2ee7a6",
+    "secs": 9.464,
+    "rc": 0
+   },
+   {
+    "seed": 5,
+    "answer": "Paris is the capital of France.",
+    "foot": "5 · first draw, pinned in seeds/5-ef7fbaf5e6d49a14.json · model haiku · drawn 2026-10-05T17:13:22.313Z · fingerprint 557be7eca214",
+    "secs": 9.703,
+    "rc": 0
+   },
+   {
+    "seed": 6,
+    "answer": "Paris is the capital of France.",
+    "foot": "6 · first draw, pinned in seeds/6-a3b6a522590fd9e4.json · model haiku · drawn 2026-10-05T17:13:30.013Z · fingerprint 557be7eca214",
+    "secs": 8.337,
+    "rc": 0
+   },
+   {
+    "seed": 7,
+    "answer": "Paris is the capital of France.",
+    "foot": "7 · first draw, pinned in seeds/7-c29323f4360ff90c.json · model haiku · drawn 2026-10-05T17:13:31.653Z · fingerprint 557be7eca214",
+    "secs": 9.617,
+    "rc": 0
+   },
+   {
+    "seed": 8,
+    "answer": "The capital of France is Paris.",
+    "foot": "8 · first draw, pinned in seeds/8-184aeadc187a2ea7.json · model haiku · drawn 2026-10-05T17:13:32.327Z · fingerprint a1b7eb2ee7a6",
+    "secs": 9.991,
+    "rc": 0
+   },
+   {
+    "seed": 9,
+    "answer": "Paris is the capital of France.",
+    "foot": "9 · first draw, pinned in seeds/9-62698fe56e848378.json · model haiku · drawn 2026-10-05T17:13:32.121Z · fingerprint 557be7eca214",
+    "secs": 9.741,
+    "rc": 0
+   },
+   {
+    "seed": 10,
+    "answer": "The capital of France is Paris.",
+    "foot": "10 · first draw, pinned in seeds/10-8b6822924a3345d3.json · model haiku · drawn 2026-10-05T17:13:31.597Z · fingerprint a1b7eb2ee7a6",
+    "secs": 9.175,
+    "rc": 0
+   },
+   {
+    "seed": 11,
+    "answer": "Paris is the capital of France.",
+    "foot": "11 · first draw, pinned in seeds/11-d62e341ace83b7b1.json · model haiku · drawn 2026-10-05T17:13:37.572Z · fingerprint 557be7eca214",
+    "secs": 7.59,
+    "rc": 0
+   },
+   {
+    "seed": 12,
+    "answer": "Paris is the capital of France.",
+    "foot": "12 · first draw, pinned in seeds/12-89010de9dc8c400c.json · model haiku · drawn 2026-10-05T17:13:39.618Z · fingerprint 557be7eca214",
+    "secs": 8.294,
+    "rc": 0
+   },
+   {
+    "seed": 13,
+    "answer": "The capital of France is Paris.",
+    "foot": "13 · first draw, pinned in seeds/13-4c4434080218d6ce.json · model haiku · drawn 2026-10-05T17:13:41.310Z · fingerprint a1b7eb2ee7a6",
+    "secs": 9.33,
+    "rc": 0
+   },
+   {
+    "seed": 14,
+    "answer": "Paris is the capital of France.",
+    "foot": "14 · first draw, pinned in seeds/14-ea0711b302c5e22f.json · model haiku · drawn 2026-10-05T17:13:41.170Z · fingerprint 557be7eca214",
+    "secs": 8.872,
+    "rc": 0
+   },
+   {
+    "seed": 15,
+    "answer": "Paris is the capital of France.",
+    "foot": "15 · first draw, pinned in seeds/15-25ae8aa0ee689d0d.json · model haiku · drawn 2026-10-05T17:13:41.408Z · fingerprint 557be7eca214",
+    "secs": 9.025,
+    "rc": 0
+   },
+   {
+    "seed": 16,
+    "answer": "Paris is the capital of France.",
+    "foot": "16 · first draw, pinned in seeds/16-b4feeb34b7ec1dbb.json · model haiku · drawn 2026-10-05T17:13:44.699Z · fingerprint 557be7eca214",
+    "secs": 6.716,
+    "rc": 0
+   },
+   {
+    "seed": 17,
+    "answer": "Paris is the capital of France.",
+    "foot": "17 · first draw, pinned in seeds/17-ed0be543fdde1ca2.json · model haiku · drawn 2026-10-05T17:13:48.154Z · fingerprint 557be7eca214",
+    "secs": 8.328,
+    "rc": 0
+   },
+   {
+    "seed": 18,
+    "answer": "Paris is the capital of France.",
+    "foot": "18 · first draw, pinned in seeds/18-a0c6f1117bdf567d.json · model haiku · drawn 2026-10-05T17:13:50.022Z · fingerprint 557be7eca214",
+    "secs": 9.118,
+    "rc": 0
+   },
+   {
+    "seed": 19,
+    "answer": "Paris is the capital of France.",
+    "foot": "19 · first draw, pinned in seeds/19-40a5591ae75edd29.json · model haiku · drawn 2026-10-05T17:13:49.614Z · fingerprint 557be7eca214",
+    "secs": 8.572,
+    "rc": 0
+   },
+   {
+    "seed": 20,
+    "answer": "Paris is the capital of France.",
+    "foot": "20 · first draw, pinned in seeds/20-43ceb4b2d67c95c7.json · model haiku · drawn 2026-10-05T17:13:50.122Z · fingerprint 557be7eca214",
+    "secs": 9.164,
+    "rc": 0
+   },
+   {
+    "seed": 21,
+    "answer": "The capital of France is Paris.",
+    "foot": "21 · first draw, pinned in seeds/21-593e4483f95826da.json · model haiku · drawn 2026-10-05T17:13:52.391Z · fingerprint a1b7eb2ee7a6",
+    "secs": 7.55,
+    "rc": 0
+   },
+   {
+    "seed": 22,
+    "answer": "Paris is the capital of France.",
+    "foot": "22 · first draw, pinned in seeds/22-ee8a23db948654e8.json · model haiku · drawn 2026-10-05T17:13:54.846Z · fingerprint 557be7eca214",
+    "secs": 6.672,
+    "rc": 0
+   },
+   {
+    "seed": 23,
+    "answer": "The capital of France is Paris.",
+    "foot": "23 · first draw, pinned in seeds/23-6a39f580f3ee32f9.json · model haiku · drawn 2026-10-05T17:13:57.174Z · fingerprint a1b7eb2ee7a6",
+    "secs": 7.676,
+    "rc": 0
+   },
+   {
+    "seed": 24,
+    "answer": "The capital of France is Paris.",
+    "foot": "24 · first draw, pinned in seeds/24-64149f864c7159b6.json · model haiku · drawn 2026-10-05T17:13:58.578Z · fingerprint a1b7eb2ee7a6",
+    "secs": 8.485,
+    "rc": 0
+   },
+   {
+    "seed": 25,
+    "answer": "The capital of France is Paris.",
+    "foot": "25 · first draw, pinned in seeds/25-dc9263badb9c3a73.json · model haiku · drawn 2026-10-05T17:13:58.882Z · fingerprint a1b7eb2ee7a6",
+    "secs": 8.43,
+    "rc": 0
+   },
+   {
+    "seed": 26,
+    "answer": "The capital of France is Paris.",
+    "foot": "26 · first draw, pinned in seeds/26-feef67b7fbaab4f0.json · model haiku · drawn 2026-10-05T17:13:59.605Z · fingerprint a1b7eb2ee7a6",
+    "secs": 7.382,
+    "rc": 0
+   },
+   {
+    "seed": 27,
+    "answer": "Paris is the capital of France.",
+    "foot": "27 · first draw, pinned in seeds/27-3014aefc3873ad99.json · model haiku · drawn 2026-10-05T17:14:01.496Z · fingerprint 557be7eca214",
+    "secs": 6.28,
+    "rc": 0
+   },
+   {
+    "seed": 28,
+    "answer": "Paris is the capital of France.",
+    "foot": "28 · first draw, pinned in seeds/28-326faa4705ffca22.json · model haiku · drawn 2026-10-05T17:14:03.544Z · fingerprint 557be7eca214",
+    "secs": 6.382,
+    "rc": 0
+   },
+   {
+    "seed": 29,
+    "answer": "Paris is the capital of France.",
+    "foot": "29 · first draw, pinned in seeds/29-8ed50991bce53087.json · model haiku · drawn 2026-10-05T17:14:05.242Z · fingerprint 557be7eca214",
+    "secs": 6.469,
+    "rc": 0
+   },
+   {
+    "seed": 30,
+    "answer": "Paris is the capital of France.",
+    "foot": "30 · first draw, pinned in seeds/30-e17d284e89db718e.json · model haiku · drawn 2026-10-05T17:14:05.629Z · fingerprint 557be7eca214",
+    "secs": 6.585,
+    "rc": 0
+   }
+  ],
+  "replay": [
+   {
+    "seed": 1,
+    "answer": "\"Turning Data Into Decisions, Insights Into Impact.\"",
+    "foot": "1 · replayed, identical to the first draw · model haiku · drawn 2026-10-05T17:11:32.299Z · fingerprint b29369701c51",
+    "secs": 5.159,
+    "rc": 0
+   },
+   {
+    "seed": 1,
+    "answer": "\"Turning Data Into Decisions, Insights Into Impact.\"",
+    "foot": "1 · replayed, identical to the first draw · model haiku · drawn 2026-10-05T17:11:32.299Z · fingerprint b29369701c51",
+    "secs": 5.171,
+    "rc": 0
+   },
+   {
+    "seed": 1,
+    "answer": "\"Turning Data Into Decisions, Insights Into Impact.\"",
+    "foot": "1 · replayed, identical to the first draw · model haiku · drawn 2026-10-05T17:11:32.299Z · fingerprint b29369701c51",
+    "secs": 5.273,
+    "rc": 0
+   },
+   {
+    "seed": 1,
+    "answer": "\"Turning Data Into Decisions, Insights Into Impact.\"",
+    "foot": "1 · replayed, identical to the first draw · model haiku · drawn 2026-10-05T17:11:32.299Z · fingerprint b29369701c51",
+    "secs": 4.884,
+    "rc": 0
+   },
+   {
+    "seed": 1,
+    "answer": "\"Turning Data Into Decisions, Insights Into Impact.\"",
+    "foot": "1 · replayed, identical to the first draw · model haiku · drawn 2026-10-05T17:11:32.299Z · fingerprint b29369701c51",
+    "secs": 5.014,
+    "rc": 0
+   },
+   {
+    "seed": 1,
+    "answer": "\"Turning Data Into Decisions, Insights Into Impact.\"",
+    "foot": "1 · replayed, identical to the first draw · model haiku · drawn 2026-10-05T17:11:32.299Z · fingerprint b29369701c51",
+    "secs": 5.241,
+    "rc": 0
+   },
+   {
+    "seed": 1,
+    "answer": "\"Turning Data Into Decisions, Insights Into Impact.\"",
+    "foot": "1 · replayed, identical to the first draw · model haiku · drawn 2026-10-05T17:11:32.299Z · fingerprint b29369701c51",
+    "secs": 4.935,
+    "rc": 0
+   },
+   {
+    "seed": 1,
+    "answer": "\"Turning Data Into Decisions, Insights Into Impact.\"",
+    "foot": "1 · replayed, identical to the first draw · model haiku · drawn 2026-10-05T17:11:32.299Z · fingerprint b29369701c51",
+    "secs": 5.376,
+    "rc": 0
+   },
+   {
+    "seed": 1,
+    "answer": "\"Turning Data Into Decisions, Insights Into Impact.\"",
+    "foot": "1 · replayed, identical to the first draw · model haiku · drawn 2026-10-05T17:11:32.299Z · fingerprint b29369701c51",
+    "secs": 5.141,
+    "rc": 0
+   },
+   {
+    "seed": 1,
+    "answer": "\"Turning Data Into Decisions, Insights Into Impact.\"",
+    "foot": "1 · replayed, identical to the first draw · model haiku · drawn 2026-10-05T17:11:32.299Z · fingerprint b29369701c51",
+    "secs": 5.201,
+    "rc": 0
+   },
+   {
+    "seed": 1,
+    "answer": "\"Turning Data Into Decisions, Insights Into Impact.\"",
+    "foot": "1 · replayed, identical to the first draw · model haiku · drawn 2026-10-05T17:11:32.299Z · fingerprint b29369701c51",
+    "secs": 5.171,
+    "rc": 0
+   },
+   {
+    "seed": 1,
+    "answer": "\"Turning Data Into Decisions, Insights Into Impact.\"",
+    "foot": "1 · replayed, identical to the first draw · model haiku · drawn 2026-10-05T17:11:32.299Z · fingerprint b29369701c51",
+    "secs": 5.096,
+    "rc": 0
+   },
+   {
+    "seed": 1,
+    "answer": "\"Turning Data Into Decisions, Insights Into Impact.\"",
+    "foot": "1 · replayed, identical to the first draw · model haiku · drawn 2026-10-05T17:11:32.299Z · fingerprint b29369701c51",
+    "secs": 4.999,
+    "rc": 0
+   },
+   {
+    "seed": 1,
+    "answer": "\"Turning Data Into Decisions, Insights Into Impact.\"",
+    "foot": "1 · replayed, identical to the first draw · model haiku · drawn 2026-10-05T17:11:32.299Z · fingerprint b29369701c51",
+    "secs": 5.09,
+    "rc": 0
+   },
+   {
+    "seed": 1,
+    "answer": "\"Turning Data Into Decisions, Insights Into Impact.\"",
+    "foot": "1 · replayed, identical to the first draw · model haiku · drawn 2026-10-05T17:11:32.299Z · fingerprint b29369701c51",
+    "secs": 5.059,
+    "rc": 0
+   },
+   {
+    "seed": 1,
+    "answer": "\"Turning Data Into Decisions, Insights Into Impact.\"",
+    "foot": "1 · replayed, identical to the first draw · model haiku · drawn 2026-10-05T17:11:32.299Z · fingerprint b29369701c51",
+    "secs": 5.232,
+    "rc": 0
+   },
+   {
+    "seed": 1,
+    "answer": "\"Turning Data Into Decisions, Insights Into Impact.\"",
+    "foot": "1 · replayed, identical to the first draw · model haiku · drawn 2026-10-05T17:11:32.299Z · fingerprint b29369701c51",
+    "secs": 5.389,
+    "rc": 0
+   },
+   {
+    "seed": 1,
+    "answer": "\"Turning Data Into Decisions, Insights Into Impact.\"",
+    "foot": "1 · replayed, identical to the first draw · model haiku · drawn 2026-10-05T17:11:32.299Z · fingerprint b29369701c51",
+    "secs": 5.155,
+    "rc": 0
+   },
+   {
+    "seed": 1,
+    "answer": "\"Turning Data Into Decisions, Insights Into Impact.\"",
+    "foot": "1 · replayed, identical to the first draw · model haiku · drawn 2026-10-05T17:11:32.299Z · fingerprint b29369701c51",
+    "secs": 5.213,
+    "rc": 0
+   },
+   {
+    "seed": 1,
+    "answer": "\"Turning Data Into Decisions, Insights Into Impact.\"",
+    "foot": "1 · replayed, identical to the first draw · model haiku · drawn 2026-10-05T17:11:32.299Z · fingerprint b29369701c51",
+    "secs": 5.049,
+    "rc": 0
+   },
+   {
+    "seed": 1,
+    "answer": "\"Turning Data Into Decisions, Insights Into Impact.\"",
+    "foot": "1 · replayed, identical to the first draw · model haiku · drawn 2026-10-05T17:11:32.299Z · fingerprint b29369701c51",
+    "secs": 5.256,
+    "rc": 0
+   },
+   {
+    "seed": 1,
+    "answer": "\"Turning Data Into Decisions, Insights Into Impact.\"",
+    "foot": "1 · replayed, identical to the first draw · model haiku · drawn 2026-10-05T17:11:32.299Z · fingerprint b29369701c51",
+    "secs": 5.013,
+    "rc": 0
+   },
+   {
+    "seed": 1,
+    "answer": "\"Turning Data Into Decisions, Insights Into Impact.\"",
+    "foot": "1 · replayed, identical to the first draw · model haiku · drawn 2026-10-05T17:11:32.299Z · fingerprint b29369701c51",
+    "secs": 5.053,
+    "rc": 0
+   },
+   {
+    "seed": 1,
+    "answer": "\"Turning Data Into Decisions, Insights Into Impact.\"",
+    "foot": "1 · replayed, identical to the first draw · model haiku · drawn 2026-10-05T17:11:32.299Z · fingerprint b29369701c51",
+    "secs": 5.256,
+    "rc": 0
+   },
+   {
+    "seed": 1,
+    "answer": "\"Turning Data Into Decisions, Insights Into Impact.\"",
+    "foot": "1 · replayed, identical to the first draw · model haiku · drawn 2026-10-05T17:11:32.299Z · fingerprint b29369701c51",
+    "secs": 5.505,
+    "rc": 0
+   },
+   {
+    "seed": 1,
+    "answer": "\"Turning Data Into Decisions, Insights Into Impact.\"",
+    "foot": "1 · replayed, identical to the first draw · model haiku · drawn 2026-10-05T17:11:32.299Z · fingerprint b29369701c51",
+    "secs": 4.943,
+    "rc": 0
+   },
+   {
+    "seed": 1,
+    "answer": "\"Turning Data Into Decisions, Insights Into Impact.\"",
+    "foot": "1 · replayed, identical to the first draw · model haiku · drawn 2026-10-05T17:11:32.299Z · fingerprint b29369701c51",
+    "secs": 5.197,
+    "rc": 0
+   },
+   {
+    "seed": 1,
+    "answer": "\"Turning Data Into Decisions, Insights Into Impact.\"",
+    "foot": "1 · replayed, identical to the first draw · model haiku · drawn 2026-10-05T17:11:32.299Z · fingerprint b29369701c51",
+    "secs": 5.185,
+    "rc": 0
+   },
+   {
+    "seed": 1,
+    "answer": "\"Turning Data Into Decisions, Insights Into Impact.\"",
+    "foot": "1 · replayed, identical to the first draw · model haiku · drawn 2026-10-05T17:11:32.299Z · fingerprint b29369701c51",
+    "secs": 5.164,
+    "rc": 0
+   },
+   {
+    "seed": 1,
+    "answer": "\"Turning Data Into Decisions, Insights Into Impact.\"",
+    "foot": "1 · replayed, identical to the first draw · model haiku · drawn 2026-10-05T17:11:32.299Z · fingerprint b29369701c51",
+    "secs": 5.194,
+    "rc": 0
+   }
+  ]
+ },
+ "when": "2026-10-05T17:16:40Z"
+}
