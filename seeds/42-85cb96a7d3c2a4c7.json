@@ -1,0 +1,8 @@
+{
+  "seed": "42",
+  "question": "Write a one-line slogan for an AI analytics team.",
+  "model": "haiku",
+  "answer": "\"Turning data into decisions, one insight at a time.\"",
+  "drawnAt": "2026-10-05T16:53:28.855Z",
+  "sha256": "f3b787d2e72896768e7f628ce8c2a4a3f315c11af4c6d94f6e721214cdced7f4"
+}

@@ -182,9 +182,31 @@ Only for people who share the `seeds/` folder. A seed with no saved answer draws
 a new one. To share your answers, commit the `seeds/` folder to git with your
 project.
 
+**Does a seed only work in the chat window where I first used it?**
+No. The saved answer is a file in the project folder, not part of the chat. Any
+chat, on any computer, that is opened in a copy of that folder with the mod
+loaded gets the same answer. A chat opened in a different folder does not see it
+and draws a new one.
+
 **How do I share a result with a colleague?**
 Commit and push the `seeds/` folder. Tell them the seed and the question. They
-load the mod in the same project and run the same line.
+download the project, load the mod and run the same line.
+
+This repository already carries two saved answers, so anyone can check it:
+
+```bash
+git clone https://github.com/eshwarpotturi/llm-seed
+cd llm-seed
+claude --plugin-dir .
+```
+
+```
+/seed 42 Write a one-line slogan for an AI analytics team.
+```
+
+The reply is `"Turning data into decisions, one insight at a time."`, marked
+`replayed`, with fingerprint `f3b787d2e728`. Seed 43 with the same question
+replays `"Turning data into decisions, at the speed of intelligence."`.
 
 **How is this better than sharing a chat link?**
 
