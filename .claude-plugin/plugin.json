@@ -1,0 +1,1 @@
+{ "name": "seed", "version": "0.1.0", "description": "/seed <seed> <question>: the same seed and question always give the identical answer; a new seed gives a fresh one." }
