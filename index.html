@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="A Claude Code mod that gives LLM answers a seed: the same seed and question always return the identical answer.">
+<title>A Seed for LLM Answers</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: one reading column of prose (65ch) with full-width panels between; the highlighter marks what repeats. */
+:root{
+  --bg:#f3f5f8; --surface:#ffffff; --ink:#121a26; --ink2:#465266; --muted:#748095; --rule:#dae0e8;
+  --hl:#ffe14d; --hl-ink:#121a26; --same:#1baf7a; --fresh:#2a78d6; --warn:#eb6834; --code:#eef1f5;
+  --display:"Bricolage Grotesque","Arial Narrow",system-ui,sans-serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0f141b; --surface:#171e29; --ink:#eef2f7; --ink2:#b4bfcd; --muted:#8492a6; --rule:#2a3543;
+  --hl:#f0d23c; --hl-ink:#121a26; --same:#3cc893; --fresh:#4a93ea; --warn:#f08455; --code:#1f2835; color-scheme:dark } }
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.6;margin:0}
+.wrap{max-width:1040px;margin:0 auto;padding-inline:20px;padding-block:40px 72px;display:flex;flex-direction:column;gap:56px}
+h1,h2{font-family:var(--display);text-wrap:balance;margin:0;letter-spacing:-0.01em}
+h1{font-size:clamp(2.3rem,6.4vw,4.4rem);line-height:1.02;font-weight:700}
+h2{font-size:clamp(1.5rem,3.2vw,2.1rem);line-height:1.12;font-weight:700}
+p{margin:0;max-width:65ch}
+a{color:var(--fresh)}
+.eyebrow{font-family:var(--mono);font-size:.74rem;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+mark{background:var(--hl);color:var(--hl-ink);padding:.02em .22em;border-radius:2px}
+header{display:flex;flex-direction:column;gap:22px}
+.lede{font-size:1.12rem;color:var(--ink2)}
+.stats{display:flex;flex-wrap:wrap;gap:20px 44px}
+.stat b{display:block;font-family:var(--display);font-size:clamp(1.9rem,4.6vw,2.9rem);line-height:1;font-weight:700}
+.stat span{display:block;font-size:.86rem;color:var(--ink2);max-width:24ch;margin-top:6px;line-height:1.35}
+section{display:flex;flex-direction:column;gap:18px}
+section>p{color:var(--ink2)}
+section>p strong{color:var(--ink);font-weight:600}
+code{font-family:var(--mono);font-size:.9em;background:var(--code);padding:.08em .32em;border-radius:3px}
+.panel{background:var(--surface);border:1px solid var(--rule);border-radius:6px;padding:18px;display:flex;flex-direction:column;gap:14px}
+.panel>small{color:var(--muted);font-size:.8rem;line-height:1.4}
+.run{border-left:3px solid var(--rule);padding-left:14px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.run.same{border-color:var(--same)} .run.fresh{border-color:var(--fresh)}
+.run .cmd{font-family:var(--mono);font-size:.86rem;color:var(--muted);overflow-wrap:anywhere}
+.run .ans{font-size:1.08rem;font-weight:500}
+.run .foot{font-family:var(--mono);font-size:.74rem;color:var(--muted);overflow-wrap:anywhere;line-height:1.5}
+.tag{font-family:var(--mono);font-size:.7rem;letter-spacing:.06em;text-transform:uppercase;font-weight:500}
+.same .tag{color:var(--same)} .fresh .tag{color:var(--fresh)}
+.steps{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;counter-reset:s}
+.steps li{background:var(--surface);border:1px solid var(--rule);border-radius:6px;padding:14px 16px;font-size:.95rem;color:var(--ink2);counter-increment:s}
+.steps li::before{content:counter(s);display:block;font-family:var(--display);font-weight:700;font-size:1.5rem;color:var(--ink);line-height:1;margin-bottom:8px}
+.steps li b{color:var(--ink);font-weight:600}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.95rem;min-width:520px}
+th{text-align:left;font-family:var(--mono);font-size:.72rem;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);font-weight:500;padding:8px 12px;border-bottom:2px solid var(--rule)}
+td{padding:10px 12px;border-bottom:1px solid var(--rule);vertical-align:top;color:var(--ink2)}
+td:first-child{color:var(--ink);font-weight:500}
+pre{margin:0;font-family:var(--mono);font-size:.84rem;line-height:1.6;background:var(--code);border-radius:6px;padding:14px 16px;overflow-x:auto;color:var(--ink)}
+details{border-bottom:1px solid var(--rule);padding:12px 0;max-width:75ch}
+details:first-of-type{border-top:1px solid var(--rule)}
+summary{cursor:pointer;font-weight:600;list-style-position:outside}
+details p{color:var(--ink2);margin-top:8px}
+ul.plain{margin:0;padding-left:20px;color:var(--ink2);max-width:65ch;display:flex;flex-direction:column;gap:8px}
+ul.plain strong{color:var(--ink);font-weight:600}
+footer{color:var(--muted);font-size:.86rem;border-top:1px solid var(--rule);padding-top:20px;display:flex;flex-direction:column;gap:8px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">A Claude Code mod · first run 5 October 2026</div>
+  <h1>LLM answers change every time. <mark>A seed</mark> makes one repeat.</h1>
+  <p class="lede">In pandas or numpy, a seed makes random results come out the same on every run. This mod gives LLM answers the same property: pick a seed, and the answer to a question is fixed for that seed.</p>
+  <div class="stats">
+    <div class="stat"><b>Same seed</b><span>and the same question return the identical answer, word for word</span></div>
+    <div class="stat"><b>New seed</b><span>returns a fresh answer to the same question</span></div>
+    <div class="stat"><b>One file</b><span>per answer, saved with the project so a colleague gets the same result</span></div>
+  </div>
+</header>
+
+<section>
+  <h2>What it looks like</h2>
+  <p>One command, <code>/seed</code>, followed by a seed and a question. These are the real replies from the first run.</p>
+  <div class="panel">
+    <div class="run fresh">
+      <span class="tag">Seed 42 · first draw</span>
+      <span class="cmd">/seed 42 Write a one-line slogan for an AI analytics team.</span>
+      <span class="ans">"Turning data into decisions, <mark>one insight at a time.</mark>"</span>
+      <span class="foot">drawn 2026-10-05T16:53:28.855Z · fingerprint f3b787d2e728</span>
+    </div>
+    <div class="run same">
+      <span class="tag">Seed 42 again · replayed, identical</span>
+      <span class="cmd">/seed 42 Write a one-line slogan for an AI analytics team.</span>
+      <span class="ans">"Turning data into decisions, <mark>one insight at a time.</mark>"</span>
+      <span class="foot">drawn 2026-10-05T16:53:28.855Z · fingerprint f3b787d2e728</span>
+    </div>
+    <div class="run fresh">
+      <span class="tag">Seed 43 · first draw, a different answer</span>
+      <span class="cmd">/seed 43 Write a one-line slogan for an AI analytics team.</span>
+      <span class="ans">"Turning data into decisions, at the speed of intelligence."</span>
+      <span class="foot">drawn 2026-10-05T16:53:40.967Z · fingerprint 52a83f5df3f9</span>
+    </div>
+    <small>Model: Claude Haiku. The fingerprint is the start of a SHA-256 hash of the answer text, so the same fingerprint means the same text.</small>
+  </div>
+</section>
+
+<section>
+  <h2>Why it is needed</h2>
+  <p>"The AI told me this" is hard for anyone else to check. A screenshot can be edited. A chat link shows the model said something once, but nobody can rerun it, its owner can delete it, and many company accounts block sharing.</p>
+  <div class="scroll"><table>
+    <thead><tr><th>Problem</th><th>Today</th><th>With a seed</th></tr></thead>
+    <tbody>
+      <tr><td>An AI answer nobody else can check</td><td>A screenshot or a chat link</td><td>A seed and a question a colleague reruns to get the same words</td></tr>
+      <tr><td>A demo that answers differently on stage</td><td>Hope, or a pasted slide</td><td>The rehearsed answer, replayed exactly</td></tr>
+      <tr><td>A result in a report that cannot be reproduced</td><td>Nothing</td><td>The answer is stored with the project, with the time it was drawn</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section>
+  <h2>How it works</h2>
+  <p>The mod does not change how the model picks its words. Chat tools give no control over that. It works one level up: <strong>the first answer drawn for a seed is pinned to that seed.</strong></p>
+  <ol class="steps">
+    <li><b>You ask</b> with <code>/seed</code>, a seed and a question.</li>
+    <li><b>A key is built</b> from the model name, the seed and the exact question.</li>
+    <li><b>No saved answer?</b> The model is asked once, and the answer is saved under that key.</li>
+    <li><b>Saved answer?</b> Its fingerprint is checked and it is returned. The model is not asked.</li>
+  </ol>
+  <p>Each saved answer is one small, readable file in a <code>seeds</code> folder inside the project:</p>
+  <pre>{
+  "seed": "42",
+  "question": "Write a one-line slogan for an AI analytics team.",
+  "model": "haiku",
+  "answer": "\"Turning data into decisions, one insight at a time.\"",
+  "drawnAt": "2026-10-05T16:53:28.855Z",
+  "sha256": "f3b787d2e728..."
+}</pre>
+  <div class="scroll"><table>
+    <thead><tr><th>Situation</th><th>Result</th></tr></thead>
+    <tbody>
+      <tr><td>New seed and question</td><td>The model is asked once and the answer is saved</td></tr>
+      <tr><td>Same seed and question again</td><td>The saved answer is returned</td></tr>
+      <tr><td>Same seed, reworded question</td><td>A new draw. One changed word makes a different question</td></tr>
+      <tr><td>Same question, different seed</td><td>A new draw</td></tr>
+      <tr><td>Saved answer edited by hand</td><td>The fingerprint no longer matches, and the mod refuses to show it</td></tr>
+      <tr><td>The model call fails</td><td>Nothing is saved</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section>
+  <h2>Chat link or seed</h2>
+  <div class="scroll"><table>
+    <thead><tr><th></th><th>Chat link</th><th>Seed</th></tr></thead>
+    <tbody>
+      <tr><td>Shows what the model said</td><td>Yes</td><td>Yes</td></tr>
+      <tr><td>Someone else can rerun it and get the same words</td><td>No</td><td>Yes</td></tr>
+      <tr><td>Lives with the project files</td><td>No</td><td>Yes</td></tr>
+      <tr><td>Can be removed by its owner</td><td>Yes</td><td>Only by deleting the file, which git history still shows</td></tr>
+      <tr><td>Records the model and the time</td><td>Depends on the tool</td><td>Always</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section>
+  <h2>Questions</h2>
+  <div>
+    <details open><summary>Does this make the model deterministic?</summary><p>No. The model is as random as before. The seed makes the result repeatable by fixing the first answer drawn for that seed. Ask the same question without <code>/seed</code> and you still get a different answer each time.</p></details>
+    <details><summary>So is it a cache?</summary><p>Yes, with three differences that matter. You choose the seed, so you can ask for a new draw on purpose. The saved answers are plain files that travel with the project, so other people get the same results. And each one carries the time it was drawn and a fingerprint.</p></details>
+    <details><summary>Why not use a real seed?</summary><p>Where a model's developer interface offers a seed setting, it is described as best effort: the same seed usually gives the same output, not always, and it can change when the provider updates the model. Chat tools do not expose it at all. Saving the answer is the only way to get an exact match every time.</p></details>
+    <details><summary>What does the seed number mean?</summary><p>Nothing by itself. It is a label. <code>42</code>, <code>7</code> and <code>demo-day</code> all work.</p></details>
+    <details><summary>Is seed 42 the same answer for everyone?</summary><p>Only for people who share the <code>seeds</code> folder. Commit that folder to git with the project, tell a colleague the seed and the question, and they get your answer.</p></details>
+    <details><summary>Can someone fake an answer?</summary><p>The fingerprint catches a saved answer that was edited afterwards. It does not stop someone who rewrites both the answer and the fingerprint. For that, git history shows who changed the file and when. This is evidence, not cryptographic proof.</p></details>
+    <details><summary>How do I get a new answer for the same question?</summary><p>Use a different seed, or delete that answer's file in the <code>seeds</code> folder.</p></details>
+    <details><summary>Does a replay cost anything?</summary><p>No. A replay reads a file. Only a first draw calls the model.</p></details>
+    <details><summary>Which model answers?</summary><p>Claude Haiku, a small and fast model, so it may not know niche facts. Another model is a one-line change. The model name is part of the key, so answers from different models never mix.</p></details>
+    <details><summary>Is my question private?</summary><p>No. The question and the answer are saved as plain text. If the folder is pushed to a public repository, everyone can read them.</p></details>
+    <details><summary>Does something like this already exist?</summary><p>In parts. Developer tools cache model calls, and some model interfaces have a best-effort seed setting. This puts the idea where the work happens, as one command, with answers shared through the project.</p></details>
+  </div>
+</section>
+
+<section>
+  <h2>What this does and does not do</h2>
+  <ul class="plain">
+    <li><strong>The model is still random.</strong> Only the result for a seed is fixed.</li>
+    <li><strong>A saved answer is one draw.</strong> It shows what the model said once, not what it usually says. Try several seeds to see the spread.</li>
+    <li><strong>The question must match exactly.</strong> A reworded question is a new question.</li>
+    <li><strong>Text in, text out.</strong> No files, images, web search or chat history are sent with the question.</li>
+    <li><strong>It needs a Claude Code version that supports mods</strong>, which are a new feature.</li>
+  </ul>
+</section>
+
+<section>
+  <h2>Try it</h2>
+  <p>Get the code from <a href="https://github.com/eshwarpotturi/llm-seed">github.com/eshwarpotturi/llm-seed</a>, start Claude Code with the mod loaded, then send one line at a time.</p>
+  <pre>claude --plugin-dir /path/to/llm-seed
+
+/seed 42 Write a one-line slogan for an AI analytics team.
+/seed 42 Write a one-line slogan for an AI analytics team.
+/seed 43 Write a one-line slogan for an AI analytics team.</pre>
+</section>
+
+<footer>
+  <span>The whole mod is one file of about 90 lines, with 8 tests. The tests use a stand-in model and write no files.</span>
+  <span>A personal demo. Not an official product of any organisation.</span>
+</footer>
+
+</div>
+</body>
+</html>

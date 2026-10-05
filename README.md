@@ -2,6 +2,8 @@
 
 A small add-on (a "mod") for Claude Code that makes an LLM answer repeatable.
 
+**Project page:** https://eshwarpotturi.github.io/llm-seed/
+
 ```
 /seed 42 Write a one-line slogan for an AI analytics team.
 ```
