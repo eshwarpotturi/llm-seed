@@ -1,0 +1,34 @@
+#!/bin/sh
+# Runs setup.sql against a throwaway local Postgres and checks the rules it promises.
+# Usage (as a non-root user with Postgres 16 binaries): sh supabase/test.sh
+set -e
+BIN=${PGBIN:-/usr/lib/postgresql/16/bin}
+DIR=$(mktemp -d); PORT=54329
+"$BIN/initdb" -D "$DIR/db" -A trust -U postgres >/dev/null
+"$BIN/pg_ctl" -D "$DIR/db" -o "-p $PORT -c listen_addresses='' -k $DIR" -w start >/dev/null
+trap '"$BIN/pg_ctl" -D "$DIR/db" -m immediate stop >/dev/null; rm -rf "$DIR"' EXIT
+Q() { psql -h "$DIR" -p $PORT -U "${ROLE:-postgres}" -d postgres -v ON_ERROR_STOP=1 -At -c "$1" 2>&1; }
+Q "create role anon nologin; create role authenticated nologin; create role anon_login login; grant anon to anon_login" >/dev/null
+psql -h "$DIR" -p $PORT -U postgres -d postgres -v ON_ERROR_STOP=1 -q -f "$(dirname "$0")/setup.sql"
+psql -h "$DIR" -p $PORT -U postgres -d postgres -v ON_ERROR_STOP=1 -q -f "$(dirname "$0")/setup.sql"   # running it twice must be safe
+TOKEN=$(Q "select seed_new_team('pricing')")
+K=$(printf 'k1' | sha256sum | cut -d' ' -f1); A1=$(printf 'first answer' | sha256sum | cut -d' ' -f1); A2=$(printf 'second answer' | sha256sum | cut -d' ' -f1)
+pass=0; fail=0
+check() { if echo "$2" | grep -q -- "$3"; then pass=$((pass+1)); echo "ok   $1"; else fail=$((fail+1)); echo "FAIL $1: got [$2] wanted [$3]"; fi; }
+ROLE=anon_login
+check "token is 64 characters"                 "$(printf %s "$TOKEN" | wc -c)" "^64$"
+check "nothing pinned yet returns null"        "[$(Q "select seed_get('pricing','$TOKEN','$K','alice')")]" "^\[\]$"
+check "first draw is stored"                   "$(Q "select seed_put('pricing','$TOKEN','$K','42','q','haiku','first answer','$A1','alice')")" '"answer":"first answer"'
+check "second draw loses, first is returned"   "$(Q "select seed_put('pricing','$TOKEN','$K','42','q','haiku','second answer','$A2','bob')")" '"answer":"first answer"'
+check "teammate reads the first answer"        "$(Q "select seed_get('pricing','$TOKEN','$K','bob')")" '"drawn_by":"alice"'
+check "wrong token is refused"                 "$(Q "select seed_get('pricing','nope','$K','eve')")" "unknown team or wrong token"
+check "unknown team is refused"                "$(Q "select seed_get('other','$TOKEN','$K','eve')")" "unknown team or wrong token"
+check "answer with a wrong fingerprint refused" "$(Q "select seed_put('pricing','$TOKEN','$K','43','q','haiku','x','$A1','alice')")" "fingerprint does not match"
+check "table cannot be read directly"          "$(Q "select count(*) from seed_answers")" "permission denied"
+check "team tokens cannot be read directly"    "$(Q "select * from seed_teams")" "permission denied"
+check "teams cannot be created by the mod"     "$(Q "select seed_new_team('hack')")" "permission denied"
+ROLE=postgres
+check "only the hash of the token is stored"   "$(Q "select count(*) from seed_teams where token_hash = '$TOKEN'")" "^0$"
+check "events record draw, lost race, replay"  "$(Q "select string_agg(action || ':' || who, ',' order by id) from seed_events")" "draw:alice,lost-race:bob,replay:bob"
+check "exactly one answer is stored"           "$(Q "select count(*) from seed_answers")" "^1$"
+echo "$pass passed, $fail failed"; [ "$fail" = 0 ]

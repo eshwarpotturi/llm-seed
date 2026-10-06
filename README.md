@@ -275,6 +275,35 @@ command, with answers that are shared through the project.
 - **Mods are a new Claude Code feature**, so this needs a version that supports
   them.
 
+## Team seeds: the same answer for every teammate
+
+A plain seed (`/seed 42 ...`) is saved in the project folder. A team seed has the
+team's name in front and is saved in a shared store:
+
+```
+/seed pricing/42 Write a one-line slogan for an AI analytics team.
+```
+
+| | Plain seed | Team seed |
+|---|---|---|
+| Where the answer is kept | A file in `seeds/` | A shared database |
+| Who gets the same answer | Anyone with a copy of the files | Anyone with the team token, straight away |
+| Two people ask at the same moment | Each gets their own answer | Both get the first one |
+| Who can read answers | Anyone who can see the files | Only people with the team token |
+| Record of who asked | None | Every draw and replay |
+
+The store is a Supabase project. [`supabase/README.md`](supabase/README.md) has
+the one-time setup, which is pasting one script.
+
+If the store cannot be reached, or the token is wrong, the mod says so and pins
+nothing. It never falls back to a local answer for a team seed, because that would
+let teammates drift apart.
+
+Tested so far: 19 mod tests with a stand-in store, 14 checks of the database
+script on a real Postgres, and an end-to-end run with two simulated teammates in
+separate folders against a local copy of the store, including three simultaneous
+draws. Not yet tested: a real Supabase project, and two real accounts.
+
 ## The experiment behind the project page
 
 The [project page](https://eshwarpotturi.github.io/llm-seed/) shows results from
@@ -300,8 +329,9 @@ The page is built from that file: `python3 site/build.py` fills
 |---|---|
 | `.claude-plugin/plugin.json` | The mod's name and description |
 | `hooks/hooks.json` | Points Claude Code at the code |
-| `hooks/register.ts` | The whole mod, about 90 lines |
-| `hooks/seed.test.ts` | 8 tests |
+| `hooks/register.ts` | The whole mod, about 190 lines |
+| `hooks/seed.test.ts`, `hooks/team.test.ts` | 19 tests |
+| `supabase/setup.sql`, `supabase/test.sh` | The team store's tables and rules, and their 14 checks |
 
 ```bash
 claude plugin validate .
