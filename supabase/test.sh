@@ -8,9 +8,10 @@ DIR=$(mktemp -d); PORT=54329
 "$BIN/pg_ctl" -D "$DIR/db" -o "-p $PORT -c listen_addresses='' -k $DIR" -w start >/dev/null
 trap '"$BIN/pg_ctl" -D "$DIR/db" -m immediate stop >/dev/null; rm -rf "$DIR"' EXIT
 Q() { psql -h "$DIR" -p $PORT -U "${ROLE:-postgres}" -d postgres -v ON_ERROR_STOP=1 -At -c "$1" 2>&1; }
-Q "create role anon nologin; create role authenticated nologin; create role anon_login login; grant anon to anon_login" >/dev/null
+Q "create role anon nologin; create role authenticated nologin; create role service_role nologin; create role anon_login login; grant anon to anon_login; create role svc_login login; grant service_role to svc_login" >/dev/null
 psql -h "$DIR" -p $PORT -U postgres -d postgres -v ON_ERROR_STOP=1 -q -f "$(dirname "$0")/setup.sql"
 psql -h "$DIR" -p $PORT -U postgres -d postgres -v ON_ERROR_STOP=1 -q -f "$(dirname "$0")/setup.sql"   # running it twice must be safe
+for i in 1 2; do psql -h "$DIR" -p $PORT -U postgres -d postgres -v ON_ERROR_STOP=1 -q -f "$(dirname "$0")/app.sql" 2>/dev/null; done
 TOKEN=$(Q "select seed_new_team('pricing')")
 K=$(printf 'k1' | sha256sum | cut -d' ' -f1); A1=$(printf 'first answer' | sha256sum | cut -d' ' -f1); A2=$(printf 'second answer' | sha256sum | cut -d' ' -f1)
 pass=0; fail=0
@@ -39,4 +40,25 @@ check "the new token reads the same answers"    "$(Q "select seed_get('pricing',
 check "the mod cannot reset a token"            "$(Q "select seed_reset_token('pricing')")" "permission denied"
 ROLE=postgres
 check "resetting an unknown team is an error"   "$(Q "select seed_reset_token('nobody')")" "no team named nobody"
+# ---- the web app's service functions
+K2=$(printf 'k2' | sha256sum | cut -d' ' -f1); B1=$(printf 'app answer' | sha256sum | cut -d' ' -f1); B2=$(printf 'other' | sha256sum | cut -d' ' -f1)
+check "an app team is created with its admin"   "$(Q "select seed_app_new_team('pricing', 'Asha@Example.com')")" "admin asha@example.com"
+ROLE=svc_login
+check "a member sees their teams"               "$(Q "select seed_svc_teams('ASHA@example.com')")" '"team" : "pricing", "role" : "admin"'
+check "a stranger has no teams"                 "$(Q "select seed_svc_teams('eve@example.com')")" "^\[\]$"
+check "a stranger cannot read"                  "$(Q "select seed_svc_get('pricing','eve@example.com','$K2')")" "not a member of this team"
+check "a stranger cannot save"                  "$(Q "select seed_svc_put('pricing','eve@example.com','$K2','7','q','haiku','app answer','$B1')")" "not a member of this team"
+check "nothing saved yet returns null"          "[$(Q "select seed_svc_get('pricing','asha@example.com','$K2')")]" "^\[\]$"
+check "an admin can add a person"               "$(Q "select seed_svc_add_member('pricing','asha@example.com','bob@example.com')" | head -1)" "bob@example.com"
+check "a non-admin cannot add people"           "$(Q "select seed_svc_add_member('pricing','bob@example.com','carol@example.com')")" "only a team admin"
+check "a bad email is refused"                  "$(Q "select seed_svc_add_member('pricing','asha@example.com','not-an-email')")" "does not look like an email"
+check "the first save is stored with the email" "$(Q "select seed_svc_put('pricing','asha@example.com','$K2','7','q','haiku','app answer','$B1')")" '"drawn_by":"asha@example.com"'
+check "a second save loses to the first"        "$(Q "select seed_svc_put('pricing','bob@example.com','$K2','7','q','haiku','other','$B2')")" '"answer":"app answer"'
+check "the list shows saved answers"            "$(Q "select json_array_length(seed_svc_list('pricing','bob@example.com'))")" "^2$"
+check "members are listed"                      "$(Q "select seed_svc_members('pricing','bob@example.com')")" "asha@example.com.*bob@example.com"
+ROLE=anon_login
+check "the public key cannot call the service"  "$(Q "select seed_svc_list('pricing','asha@example.com')")" "permission denied"
+check "the public key cannot create app teams"  "$(Q "select seed_app_new_team('x','e@example.com')")" "permission denied"
+check "the /seed command sees the app's answer" "$(Q "select seed_get('pricing','$NEW','$K2','mod-user')")" '"answer":"app answer"'
+ROLE=postgres
 echo "$pass passed, $fail failed"; [ "$fail" = 0 ]

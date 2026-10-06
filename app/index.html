@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Ask an LLM with a seed. The first answer is saved for your team, and everyone who uses the same seed and question gets the same words.">
+<title>Seed for Teams</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Schibsted+Grotesk:wght@400;500;700;800&display=swap">
+<style>
+/* Layout: one working column. Sign-in, then the ask form, the answer under it, the team's saved answers, then members.
+   Two state colours with fixed meaning: orange = a first draw (the model was asked), green = replayed (the saved answer). */
+:root{
+  --paper:#F2F5F1; --raised:#FFFFFF; --ink:#12241F; --ink2:#3F524C; --quiet:#6B7C76; --line:#D3DCD6;
+  --draw:#B85C0C; --draw-soft:#F6E3CF; --same:#0F7A57; --same-soft:#D5EDE3; --warn:#A33B2B; --warn-soft:#F6DED9;
+  --sans:"Schibsted Grotesk",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root{
+  --paper:#0E1A17; --raised:#15241F; --ink:#EAF1ED; --ink2:#B5C4BD; --quiet:#8A9B94; --line:#2A3B35;
+  --draw:#E0913A; --draw-soft:#3A2A16; --same:#3DBF96; --same-soft:#143328; --warn:#F0907F; --warn-soft:#3B1D18; color-scheme:dark}}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:17px;line-height:1.55;margin:0;padding:28px 16px 64px}
+.wrap{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:26px}
+h1{font-size:clamp(1.9rem,5vw,2.6rem);line-height:1.05;letter-spacing:-.03em;font-weight:800;margin:0;text-wrap:balance}
+h2{font-size:1.2rem;line-height:1.2;font-weight:800;margin:0;letter-spacing:-.01em}
+p{margin:0}
+.lede{color:var(--ink2);font-size:1.08rem;max-width:54ch;margin-top:10px}
+:focus-visible{outline:3px solid var(--same);outline-offset:2px;border-radius:6px}
+.top{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;justify-content:space-between;font-size:.9rem;color:var(--ink2)}
+.top b{color:var(--ink)}
+.link{all:unset;cursor:pointer;color:var(--same);font-weight:700;text-decoration:underline;text-underline-offset:3px}
+.card{background:var(--raised);border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:14px}
+.row{display:grid;grid-template-columns:minmax(0,150px) minmax(0,110px) minmax(0,1fr);gap:12px}
+@media (max-width:620px){.row{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.row .wide{grid-column:1/-1}}
+label{display:flex;flex-direction:column;gap:6px;font-size:.86rem;font-weight:700;color:var(--ink2);min-width:0}
+input,textarea,select{font:inherit;font-weight:400;color:var(--ink);background:var(--paper);border:1.5px solid var(--line);border-radius:10px;padding:10px 12px;width:100%;min-width:0}
+textarea{resize:vertical;min-height:74px}
+#seed{font-family:var(--mono);font-size:.95rem}
+.actions{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center}
+button{font:inherit;cursor:pointer}
+.primary{font-weight:800;border:0;border-radius:999px;padding:12px 26px;color:#fff;background:var(--same)}
+.primary[disabled]{opacity:.55;cursor:default}
+.eg{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:.86rem;color:var(--quiet)}
+.eg button{border:1.5px solid var(--line);background:transparent;color:var(--ink2);border-radius:999px;padding:5px 12px;font-size:.84rem}
+#out{border-top:6px solid var(--line)}
+#out.draw{border-top-color:var(--draw)} #out.same{border-top-color:var(--same)}
+.chip{align-self:flex-start;font-size:.84rem;font-weight:800;border-radius:999px;padding:4px 12px;background:var(--line);color:var(--ink)}
+.draw .chip{background:var(--draw-soft);color:var(--draw)} .same .chip{background:var(--same-soft);color:var(--same)}
+#answer{font-size:1.2rem;line-height:1.4;font-weight:500;white-space:pre-wrap;overflow-wrap:anywhere}
+#meta{font-size:.86rem;color:var(--quiet);overflow-wrap:anywhere}
+#meta code{font-family:var(--mono);font-size:.8rem;color:var(--ink2)}
+.note{font-size:.94rem;color:var(--ink2);background:var(--raised);border-radius:12px;padding:12px 16px;border-left:5px solid var(--draw)}
+.note.bad{border-left-color:var(--warn)}
+.list{list-style:none;margin:10px 0 0;padding:0;display:flex;flex-direction:column}
+.list li{border-top:1px solid var(--line)}
+.list button{all:unset;cursor:pointer;display:grid;grid-template-columns:minmax(0,84px) minmax(0,1fr);gap:4px 14px;padding:13px 4px;width:100%;box-sizing:border-box;border-radius:8px}
+.list button:hover{background:var(--raised)}
+.list .s{font-family:var(--mono);font-size:.84rem;font-weight:600;color:var(--same);overflow-wrap:anywhere}
+.list .q{font-weight:700;font-size:.96rem;overflow-wrap:anywhere}
+.list .a{grid-column:2;color:var(--ink2);font-size:.92rem;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.list .w{grid-column:2;color:var(--quiet);font-size:.8rem;overflow-wrap:anywhere}
+.empty{color:var(--quiet);font-size:.95rem;padding:14px 4px;border-top:1px solid var(--line);margin-top:10px}
+.people{list-style:none;margin:10px 0 0;padding:0;display:flex;flex-wrap:wrap;gap:8px}
+.people li{background:var(--raised);border-radius:999px;padding:5px 12px;font-size:.88rem;overflow-wrap:anywhere}
+.people li small{color:var(--quiet);margin-left:6px}
+.inline{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;margin-top:12px}
+.inline label{flex:1 1 220px}
+.ghost{border:1.5px solid var(--same);background:transparent;color:var(--same);font-weight:700;border-radius:999px;padding:10px 20px}
+.how{color:var(--ink2);font-size:.92rem;display:flex;flex-direction:column;gap:6px;max-width:62ch}
+.how b{color:var(--ink)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Seed for Teams</h1>
+    <p class="lede">Ask with a seed. The first answer is saved for your team, and every teammate who uses the same seed and question gets those same words.</p>
+  </header>
+
+  <p class="note" id="notice" hidden></p>
+
+  <!-- signed out -->
+  <form class="card" id="signin" hidden>
+    <h2>Sign in</h2>
+    <label for="email">Work email<input id="email" type="email" autocomplete="email" required placeholder="you@company.com"></label>
+    <div class="actions"><button class="primary" id="send" type="submit">Email me a sign-in link</button></div>
+    <p style="font-size:.9rem;color:var(--quiet)">No password. Open the link in the email on this device and you are signed in.</p>
+  </form>
+
+  <!-- signed in -->
+  <div id="app" hidden style="display:flex;flex-direction:column;gap:26px">
+    <div class="top"><span>Signed in as <b id="me"></b></span><button class="link" id="signout" type="button">Sign out</button></div>
+
+    <p class="note" id="noteam" hidden>You are signed in, but your email is not in any team yet. Ask a team admin to add it, then reload this page.</p>
+
+    <form class="card" id="form" autocomplete="off" hidden>
+      <div class="row">
+        <label for="team">Team<select id="team"></select></label>
+        <label for="seed">Seed<input id="seed" value="42" maxlength="40" spellcheck="false"></label>
+        <label for="question" class="wide">Question<textarea id="question" maxlength="4000" placeholder="Type a question"></textarea></label>
+      </div>
+      <div class="actions">
+        <button class="primary" id="ask" type="submit">Ask</button>
+        <span class="eg">Try: <button type="button" data-q="Write a one-line slogan for an AI analytics team.">a slogan</button><button type="button" data-q="Pick a random number between 1 and 100. Reply with only the number.">a random number</button></span>
+      </div>
+    </form>
+
+    <section class="card" id="out" aria-live="polite" hidden>
+      <span class="chip" id="chip"></span>
+      <div id="answer"></div>
+      <div id="meta"></div>
+    </section>
+
+    <section id="savedbox" hidden>
+      <h2>Saved for <span id="teamname"></span></h2>
+      <ul class="list" id="list"></ul>
+      <p class="empty" id="empty">Nothing is saved for this team yet. Type a question above and press Ask to save the first answer.</p>
+    </section>
+
+    <section id="peoplebox" hidden>
+      <h2>People in this team</h2>
+      <ul class="people" id="people"></ul>
+      <form class="inline" id="addform" hidden>
+        <label for="newemail">Add a teammate by email<input id="newemail" type="email" required placeholder="teammate@company.com"></label>
+        <button class="ghost" type="submit">Add</button>
+      </form>
+    </section>
+  </div>
+
+  <section class="how">
+    <h2>How it works</h2>
+    <p><b>Same seed, same question:</b> the team's saved answer is shown. The model is not asked again.</p>
+    <p><b>New seed or new question:</b> the model is asked once and the answer is saved for the team, with your email and the time.</p>
+    <p><b>Only team members</b> can read or add answers. The page never talks to the database or the model. A service checks who you are first.</p>
+    <p>The model still answers differently every time. The seed is what makes one answer repeatable. A changed word counts as a new question.</p>
+  </section>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(() => {
+  // The project address and its public key. Both are safe to publish: the key can only
+  // sign people in and call the seed service, which checks every request.
+  const SUPABASE_URL = 'https://tzedotepqycifiwlsbif.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_0-Evj91wtqCrLQC4biYP5w_TCGPywkm';
+
+  const $ = id => document.getElementById(id);
+  const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text !== undefined) e.textContent = text; return e; };
+  const when = iso => { const d = new Date(iso); return isNaN(d) ? iso : d.toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' }); };
+  const say = (text, bad) => { $('notice').textContent = text || ''; $('notice').hidden = !text; $('notice').className = 'note' + (bad ? ' bad' : ''); };
+  if (!window.supabase) { say('The sign-in library could not be loaded. Check your connection and reload.', true); return; }
+  const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  let session = null, email = '', teams = [], busy = false;
+
+  async function service(body) {
+    const r = await fetch(`${SUPABASE_URL}/functions/v1/seed`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', apikey: SUPABASE_KEY, Authorization: `Bearer ${session.access_token}` },
+      body: JSON.stringify(body),
+    });
+    const data = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(data.error || data.message || `the service answered with status ${r.status}`);
+    return data;
+  }
+  const first = s => s.charAt(0).toUpperCase() + s.slice(1);
+  const team = () => $('team').value;
+  const role = () => (teams.find(t => t.team === team()) || {}).role;
+
+  function showRow(row, status) {
+    const label = status === 'first' ? 'First draw, saved for the team' : status === 'lost-race' ? 'A teammate saved this seed first, so this is their answer' : 'Replayed from the team notebook';
+    $('out').hidden = false; $('out').className = 'card ' + (status === 'first' ? 'draw' : 'same');
+    $('chip').textContent = label; $('answer').textContent = row.answer;
+    const code = t => el('code', '', t);
+    $('meta').replaceChildren('Seed ', code(row.seed), ` · first asked by ${row.drawn_by === email ? 'you' : row.drawn_by} on ${when(row.drawn_at)} · model ${row.model} · fingerprint `, code(row.sha256.slice(0, 12)));
+  }
+
+  async function loadTeam() {
+    $('teamname').textContent = team(); $('out').hidden = true;
+    const [{ rows }, { members }] = await Promise.all([service({ action: 'list', team: team() }), service({ action: 'members', team: team() })]);
+    $('empty').hidden = rows.length > 0;
+    $('list').replaceChildren(...rows.map(row => {
+      const li = el('li'), b = el('button'); b.type = 'button';
+      b.append(el('span', 's', row.seed), el('span', 'q', row.question), el('span', 'a', row.answer), el('span', 'w', `${row.drawn_by === email ? 'you' : row.drawn_by} · ${when(row.drawn_at)}`));
+      b.addEventListener('click', () => { $('seed').value = row.seed; $('question').value = row.question; showRow(row, 'replayed'); $('out').scrollIntoView({ block: 'nearest' }); });
+      li.append(b); return li;
+    }));
+    $('people').replaceChildren(...members.map(m => { const li = el('li', '', m.email); if (m.role === 'admin') li.append(el('small', '', 'admin')); return li; }));
+    $('addform').hidden = role() !== 'admin';
+  }
+
+  async function signedIn(s) {
+    session = s; email = (s.user && s.user.email || '').toLowerCase();
+    $('signin').hidden = true; $('app').hidden = false; $('me').textContent = email; say('');
+    try {
+      teams = (await service({ action: 'me' })).teams;
+    } catch (e) { return say(`The seed service could not be reached: ${e.message}.`, true); }
+    const has = teams.length > 0;
+    $('noteam').hidden = has; $('form').hidden = !has; $('savedbox').hidden = !has; $('peoplebox').hidden = !has;
+    if (!has) return;
+    $('team').replaceChildren(...teams.map(t => { const o = el('option', '', t.team); o.value = t.team; return o; }));
+    try { await loadTeam(); } catch (e) { say(first(e.message) + '.', true); }
+  }
+  function signedOut() { session = null; $('app').hidden = true; $('signin').hidden = false; }
+
+  $('signin').addEventListener('submit', async e => {
+    e.preventDefault(); $('send').disabled = true; say('');
+    const { error } = await client.auth.signInWithOtp({ email: $('email').value.trim(), options: { emailRedirectTo: location.origin + location.pathname } });
+    $('send').disabled = false;
+    if (error) return say(`The sign-in email could not be sent: ${error.message}. Wait a minute and try again.`, true);
+    say(`A sign-in link is on its way to ${$('email').value.trim()}. Open it on this device. It can take a minute, and may land in spam.`);
+  });
+  $('signout').addEventListener('click', async () => { await client.auth.signOut(); signedOut(); say('You are signed out.'); });
+  $('team').addEventListener('change', () => loadTeam().catch(e => say(first(e.message) + '.', true)));
+  document.querySelectorAll('.eg button').forEach(b => b.addEventListener('click', () => { $('question').value = b.dataset.q; $('question').focus(); }));
+
+  $('form').addEventListener('submit', async e => {
+    e.preventDefault(); if (busy) return;
+    const seed = $('seed').value.trim(), question = $('question').value.trim(); say('');
+    if (!seed || /\s/.test(seed)) return say('Give the seed a short name with no spaces, such as 42 or demo-day.');
+    if (!question) return say('Type a question first.');
+    busy = true; $('ask').disabled = true; $('ask').textContent = 'Working…';
+    try {
+      const { status, row } = await service({ action: 'ask', team: team(), seed, question });
+      showRow(row, status);
+      if (status !== 'replayed') await loadTeam().then(() => showRow(row, status));
+    } catch (err) { $('out').hidden = true; say(first(err.message) + '.', true); }
+    busy = false; $('ask').disabled = false; $('ask').textContent = 'Ask';
+  });
+
+  $('addform').addEventListener('submit', async e => {
+    e.preventDefault(); say('');
+    try { await service({ action: 'add_member', team: team(), email: $('newemail').value.trim() }); $('newemail').value = ''; await loadTeam(); say('Added. They can sign in with that email now.'); }
+    catch (err) { say(first(err.message) + '.', true); }
+  });
+
+  client.auth.onAuthStateChange((_event, s) => { if (s && (!session || s.access_token !== session.access_token)) { const wasIn = !!session; session = s; if (!wasIn) signedIn(s); } else if (!s && session) signedOut(); });
+  client.auth.getSession().then(({ data }) => { if (data.session) { if (!session) signedIn(data.session); } else signedOut(); });
+})();
+</script>
+</body>
+</html>

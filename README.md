@@ -275,6 +275,19 @@ command, with answers that are shared through the project.
 - **Mods are a new Claude Code feature**, so this needs a version that supports
   them.
 
+## Three ways to use it
+
+| | Plain seed | Team seed | Web app |
+|---|---|---|---|
+| For | One person | Developers in a team | Anyone in a team |
+| How | `/seed 42 ...` in Claude Code | `/seed pricing/42 ...` in Claude Code | Open a link, sign in, press Ask |
+| Answers kept in | Files in `seeds/` | The team's Supabase store | The same Supabase store |
+| Who you are | Not recorded | A name you set | Your sign-in email |
+| Setup | None | [`supabase/README.md`](supabase/README.md) | [`supabase/APP.md`](supabase/APP.md) |
+
+The web app is at https://eshwarpotturi.github.io/llm-seed/app/. Team seeds and the
+web app share one notebook: an answer saved from either is replayed by both.
+
 ## Team seeds: the same answer for every teammate
 
 A plain seed (`/seed 42 ...`) is saved in the project folder. A team seed has the
@@ -333,7 +346,9 @@ The page is built from that file: `python3 site/build.py` fills
 | `hooks/hooks.json` | Points Claude Code at the code |
 | `hooks/register.ts` | The whole mod, about 190 lines |
 | `hooks/seed.test.ts`, `hooks/team.test.ts` | 19 tests |
-| `supabase/setup.sql`, `supabase/test.sh` | The team store's tables and rules, and their 19 checks |
+| `supabase/setup.sql`, `supabase/app.sql`, `supabase/test.sh` | The store's tables and rules, and their 35 checks |
+| `supabase/functions/seed/index.ts` and its test | The web app's service, 13 tests |
+| `app/index.html` | The web app |
 
 ```bash
 claude plugin validate .
