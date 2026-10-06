@@ -60,5 +60,25 @@ ROLE=anon_login
 check "the public key cannot call the service"  "$(Q "select seed_svc_list('pricing','asha@example.com')")" "permission denied"
 check "the public key cannot create app teams"  "$(Q "select seed_app_new_team('x','e@example.com')")" "permission denied"
 check "the /seed command sees the app's answer" "$(Q "select seed_get('pricing','$NEW','$K2','mod-user')")" '"answer":"app answer"'
+# ---- open teams
+K3=$(printf 'k3' | sha256sum | cut -d' ' -f1); C1=$(printf 'open answer' | sha256sum | cut -d' ' -f1)
+ROLE=svc_login
+check "a team is closed unless opened"          "$(Q "select seed_open_get('pricing','$K3','guest: Asha')")" "this team is not open"
+check "no open teams to begin with"             "$(Q "select seed_open_teams()")" "^\[\]$"
+ROLE=postgres
+check "opening creates the team if needed"      "$(Q "select seed_app_open('demo', true)")" "demo is open"
+ROLE=svc_login
+check "open teams are listed"                   "$(Q "select seed_open_teams()")" '"team" : "demo"'
+check "a guest saves in an open team"           "$(Q "select seed_open_put('demo','$K3','7','q','gemini','open answer','$C1','guest: Asha')")" '"drawn_by":"guest: Asha"'
+check "a second guest gets the first answer"    "$(Q "select seed_open_get('demo','$K3','guest: Bob')")" '"answer":"open answer"'
+check "the open list shows it"                  "$(Q "select json_array_length(seed_open_list('demo'))")" "^1$"
+check "a guest cannot save in a closed team"    "$(Q "select seed_open_put('pricing','$K3','7','q','gemini','open answer','$C1','guest: Eve')")" "this team is not open"
+ROLE=anon_login
+check "the public key cannot use the open path" "$(Q "select seed_open_list('demo')")" "permission denied"
+check "the public key cannot open a team"       "$(Q "select seed_app_open('pricing', true)")" "permission denied"
+ROLE=postgres
+check "closing a team keeps its answers"        "$(Q "select seed_app_open('demo', false)") $(Q "select count(*) from seed_answers where team = 'demo'")" "closed.* 1$"
+ROLE=svc_login
+check "a closed team refuses guests again"      "$(Q "select seed_open_get('demo','$K3','guest: Bob')")" "this team is not open"
 ROLE=postgres
 echo "$pass passed, $fail failed"; [ "$fail" = 0 ]

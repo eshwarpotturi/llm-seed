@@ -10,7 +10,25 @@ Do [the store setup](README.md) first (run `setup.sql`).
 
 Open **SQL Editor**, paste the whole of [`app.sql`](app.sql), and press **Run**.
 
-## 2. Create a team with yourself as admin
+## 2. Choose how people get in
+
+**Open, for a demo: no sign-in.** Anyone with the app's link can ask and replay in
+this team. Run in the SQL Editor:
+
+```sql
+select seed_app_open('demo', true);
+```
+
+That creates the team if it does not exist. People type a name in the app, and it
+is not checked. To close it again later, keeping its answers:
+`select seed_app_open('demo', false);`
+
+With an open team you can skip step 5. In step 3, also switch off **Verify JWT**
+in the function's settings, so that visitors who are not signed in can reach it.
+
+**Closed, for real use: sign-in and membership.** Continue below.
+
+## 2b. Create a closed team with yourself as admin
 
 In the SQL Editor, with your own email:
 
@@ -91,10 +109,13 @@ link that arrives. Choose your team, type a seed and a question, and press Ask.
 
 - **The data is outside your company** while it runs on a personal Supabase project.
   Use harmless questions.
-- **Anyone can request a sign-in link**, but a person who is not in a team sees
-  nothing and cannot ask.
+- **An open team is open to anyone who has the link.** They can read its saved
+  answers and ask new questions, which uses your model key's quota. Names are not
+  verified. Close the team when the demo is over.
+- **Anyone can request a sign-in link**, but a person who is not in a closed team
+  sees nothing in it and cannot ask.
 - **The model key is billed to whoever owns it.** Every first draw by any member
   uses it. Replays cost nothing.
-- **Tested so far:** 35 database checks on Postgres 16, 16 tests of the service
+- **Tested so far:** 47 database checks on Postgres 16, 19 tests of the service
   with stand-ins for Supabase and the model, and the page's screens with a
   stand-in service. See the main README for what has run on the live project.

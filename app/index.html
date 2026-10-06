@@ -91,7 +91,11 @@ button{font:inherit;cursor:pointer}
 
   <!-- signed in -->
   <div id="app" hidden style="display:flex;flex-direction:column;gap:26px">
-    <div class="top"><span>Signed in as <b id="me"></b></span><button class="link" id="signout" type="button">Sign out</button></div>
+    <div class="top" id="userbar"><span>Signed in as <b id="me"></b></span><button class="link" id="signout" type="button">Sign out</button></div>
+    <div class="card" id="guestbar" hidden>
+      <label for="name">Your name, shown next to answers you save<input id="name" maxlength="40" placeholder="Type your name" autocomplete="name"></label>
+      <p style="font-size:.88rem;color:var(--quiet)">This is an open demo team. Anyone with this link can ask and see its saved answers, and names are not checked.</p>
+    </div>
 
     <p class="note" id="noteam" hidden>You are signed in, but your email is not in any team yet. Ask a team admin to add it, then reload this page.</p>
 
@@ -133,7 +137,7 @@ button{font:inherit;cursor:pointer}
     <h2>How it works</h2>
     <p><b>Same seed, same question:</b> the team's saved answer is shown. The model is not asked again.</p>
     <p><b>New seed or new question:</b> the model is asked once and the answer is saved for the team, with your email and the time.</p>
-    <p><b>Only team members</b> can read or add answers. The page never talks to the database or the model. A service checks who you are first.</p>
+    <p><b>A team is either open or closed.</b> An open team can be used by anyone with this link. A closed team needs a sign-in and membership. Either way, the page never talks to the database or the model: a service checks every request first.</p>
     <p>The model still answers differently every time. The seed is what makes one answer repeatable. A changed word counts as a new question.</p>
   </section>
 </div>
@@ -152,13 +156,17 @@ button{font:inherit;cursor:pointer}
   const say = (text, bad) => { $('notice').textContent = text || ''; $('notice').hidden = !text; $('notice').className = 'note' + (bad ? ' bad' : ''); };
   if (!window.supabase) { say('The sign-in library could not be loaded. Check your connection and reload.', true); return; }
   const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-  let session = null, email = '', teams = [], busy = false;
+  let session = null, email = '', teams = [], busy = false, guest = false;
+  const myName = () => $('name').value.replace(/\s+/g, ' ').trim().slice(0, 40) || 'guest';
+  const me = () => (guest ? `guest: ${myName()}` : email);
+  try { $('name').value = localStorage.getItem('seed-name') || ''; } catch {}
+  $('name').addEventListener('change', () => { try { localStorage.setItem('seed-name', $('name').value); } catch {} });
 
   async function service(body) {
     const r = await fetch(`${SUPABASE_URL}/functions/v1/seed`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', apikey: SUPABASE_KEY, Authorization: `Bearer ${session.access_token}` },
-      body: JSON.stringify(body),
+      headers: { 'Content-Type': 'application/json', apikey: SUPABASE_KEY, Authorization: `Bearer ${session ? session.access_token : SUPABASE_KEY}` },
+      body: JSON.stringify(guest ? { ...body, name: myName() } : body),
     });
     const data = await r.json().catch(() => ({}));
     if (!r.ok) throw new Error(data.error || data.message || `the service answered with status ${r.status}`);
@@ -173,36 +181,50 @@ button{font:inherit;cursor:pointer}
     $('out').hidden = false; $('out').className = 'card ' + (status === 'first' ? 'draw' : 'same');
     $('chip').textContent = label; $('answer').textContent = row.answer;
     const code = t => el('code', '', t);
-    $('meta').replaceChildren('Seed ', code(row.seed), ` · first asked by ${row.drawn_by === email ? 'you' : row.drawn_by} on ${when(row.drawn_at)} · model ${row.model} · fingerprint `, code(row.sha256.slice(0, 12)));
+    $('meta').replaceChildren('Seed ', code(row.seed), ` · first asked by ${row.drawn_by === me() ? 'you' : row.drawn_by} on ${when(row.drawn_at)} · model ${row.model} · fingerprint `, code(row.sha256.slice(0, 12)));
   }
 
   async function loadTeam() {
     $('teamname').textContent = team(); $('out').hidden = true;
-    const [{ rows }, { members }] = await Promise.all([service({ action: 'list', team: team() }), service({ action: 'members', team: team() })]);
+    const [{ rows }, { members }] = await Promise.all([service({ action: 'list', team: team() }), guest ? { members: [] } : service({ action: 'members', team: team() })]);
     $('empty').hidden = rows.length > 0;
     $('list').replaceChildren(...rows.map(row => {
       const li = el('li'), b = el('button'); b.type = 'button';
-      b.append(el('span', 's', row.seed), el('span', 'q', row.question), el('span', 'a', row.answer), el('span', 'w', `${row.drawn_by === email ? 'you' : row.drawn_by} · ${when(row.drawn_at)}`));
+      b.append(el('span', 's', row.seed), el('span', 'q', row.question), el('span', 'a', row.answer), el('span', 'w', `${row.drawn_by === me() ? 'you' : row.drawn_by} · ${when(row.drawn_at)}`));
       b.addEventListener('click', () => { $('seed').value = row.seed; $('question').value = row.question; showRow(row, 'replayed'); $('out').scrollIntoView({ block: 'nearest' }); });
       li.append(b); return li;
     }));
     $('people').replaceChildren(...members.map(m => { const li = el('li', '', m.email); if (m.role === 'admin') li.append(el('small', '', 'admin')); return li; }));
     $('addform').hidden = role() !== 'admin';
+    $('peoplebox').hidden = guest;
   }
 
-  async function signedIn(s) {
-    session = s; email = (s.user && s.user.email || '').toLowerCase();
-    $('signin').hidden = true; $('app').hidden = false; $('me').textContent = email; say('');
-    try {
-      teams = (await service({ action: 'me' })).teams;
-    } catch (e) { return say(`The seed service could not be reached: ${e.message}.`, true); }
-    const has = teams.length > 0;
-    $('noteam').hidden = has; $('form').hidden = !has; $('savedbox').hidden = !has; $('peoplebox').hidden = !has;
+  async function showTeams(list) {
+    teams = list; const has = teams.length > 0;
+    $('noteam').hidden = has || guest; $('form').hidden = !has; $('savedbox').hidden = !has; $('peoplebox').hidden = !has || guest;
     if (!has) return;
     $('team').replaceChildren(...teams.map(t => { const o = el('option', '', t.team); o.value = t.team; return o; }));
     try { await loadTeam(); } catch (e) { say(first(e.message) + '.', true); }
   }
-  function signedOut() { session = null; $('app').hidden = true; $('signin').hidden = false; }
+  // No sign-in: use whichever teams have been opened for anyone with the link.
+  async function asGuest() {
+    session = null; guest = true; email = '';
+    let open = [];
+    try { open = (await service({ action: 'me' })).teams; }
+    catch (e) { guest = false; $('signin').hidden = false; $('app').hidden = true; return say(`The seed service could not be reached: ${e.message}.`, true); }
+    if (!open.length) { guest = false; $('app').hidden = true; $('signin').hidden = false; return; }
+    $('signin').hidden = true; $('app').hidden = false; $('userbar').hidden = true; $('guestbar').hidden = false;
+    await showTeams(open);
+  }
+  async function signedIn(s) {
+    session = s; guest = false; email = (s.user && s.user.email || '').toLowerCase();
+    $('signin').hidden = true; $('app').hidden = false; $('userbar').hidden = false; $('guestbar').hidden = true; $('me').textContent = email; say('');
+    try {
+      teams = (await service({ action: 'me' })).teams;
+    } catch (e) { return say(`The seed service could not be reached: ${e.message}.`, true); }
+    await showTeams(teams);
+  }
+  function signedOut() { return asGuest(); }
 
   $('signin').addEventListener('submit', async e => {
     e.preventDefault(); $('send').disabled = true; say('');
@@ -211,7 +233,7 @@ button{font:inherit;cursor:pointer}
     if (error) return say(`The sign-in email could not be sent: ${error.message}. Wait a minute and try again.`, true);
     say(`A sign-in link is on its way to ${$('email').value.trim()}. Open it on this device. It can take a minute, and may land in spam.`);
   });
-  $('signout').addEventListener('click', async () => { await client.auth.signOut(); signedOut(); say('You are signed out.'); });
+  $('signout').addEventListener('click', async () => { await client.auth.signOut(); await signedOut(); say('You are signed out.'); });
   $('team').addEventListener('change', () => loadTeam().catch(e => say(first(e.message) + '.', true)));
   document.querySelectorAll('.eg button').forEach(b => b.addEventListener('click', () => { $('question').value = b.dataset.q; $('question').focus(); }));
 

@@ -282,7 +282,7 @@ command, with answers that are shared through the project.
 | For | One person | Developers in a team | Anyone in a team |
 | How | `/seed 42 ...` in Claude Code | `/seed pricing/42 ...` in Claude Code | Open a link, sign in, press Ask |
 | Answers kept in | Files in `seeds/` | The team's Supabase store | The same Supabase store |
-| Who you are | Not recorded | A name you set | Your sign-in email |
+| Who you are | Not recorded | A name you set | Your sign-in email, or a typed name in an open demo team |
 | Setup | None | [`supabase/README.md`](supabase/README.md) | [`supabase/APP.md`](supabase/APP.md) |
 
 The web app is at https://eshwarpotturi.github.io/llm-seed/app/. Team seeds and the
@@ -348,8 +348,8 @@ The page is built from that file: `python3 site/build.py` fills
 | `hooks/hooks.json` | Points Claude Code at the code |
 | `hooks/register.ts` | The whole mod, about 190 lines |
 | `hooks/seed.test.ts`, `hooks/team.test.ts` | 19 tests |
-| `supabase/setup.sql`, `supabase/app.sql`, `supabase/test.sh` | The store's tables and rules, and their 35 checks |
-| `supabase/functions/seed/index.ts`, `check.ts` | The web app's service and its 16 tests (`node --experimental-strip-types --test supabase/functions/seed/check.ts`) |
+| `supabase/setup.sql`, `supabase/app.sql`, `supabase/test.sh` | The store's tables and rules, and their 47 checks |
+| `supabase/functions/seed/index.ts`, `check.ts` | The web app's service and its 19 tests (`node --experimental-strip-types --test supabase/functions/seed/check.ts`) |
 | `app/index.html` | The web app |
 
 ```bash

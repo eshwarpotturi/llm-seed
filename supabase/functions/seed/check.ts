@@ -12,9 +12,9 @@ const json = (status: number, body: unknown) => new Response(JSON.stringify(body
 /** A stand-in for Supabase and the model, with the same rules as supabase/app.sql. */
 function world(opts: { modelFails?: boolean; missingModels?: string[]; beforePut?: (w: any, a: any) => void } = {}) {
   const w: any = {
-    users: { "tok-asha": "asha@example.com", "tok-bob": "bob@example.com", "tok-eve": "eve@example.com" },
+    users: { "h.asha.s": "asha@example.com", "h.bob.s": "bob@example.com", "h.eve.s": "eve@example.com" },
     members: { pricing: { "asha@example.com": "admin", "bob@example.com": "member" } },
-    rows: new Map<string, any>(), draws: 0, calls: [] as { url: string; headers: Record<string, string>; body: any }[],
+    open: new Set<string>(["demo"]), rows: new Map<string, any>(), draws: 0, calls: [] as { url: string; headers: Record<string, string>; body: any }[],
   };
   const role = (team: string, email: string) => w.members[team]?.[email];
   const notMember = () => json(403, { code: "28000", message: "you are not a member of this team" });
@@ -39,6 +39,17 @@ function world(opts: { modelFails?: boolean; missingModels?: string[]; beforePut
     const rpc = /^https:\/\/proj\.example\/rest\/v1\/rpc\/(\w+)$/.exec(url)?.[1];
     if (!rpc || headers.apikey !== "SERVICE-KEY") return json(401, { message: "bad key" });
     const a = body;
+    if (rpc.startsWith("seed_open_")) {
+      if (rpc === "seed_open_teams") return json(200, [...w.open].map((team: string) => ({ team, role: "guest" })));
+      if (!w.open.has(a.p_team)) return json(403, { code: "28000", message: "this team is not open, sign in to use it" });
+      const oid = `${a.p_team}/${a.p_key}`;
+      if (rpc === "seed_open_get") return json(200, w.rows.get(oid) ?? null);
+      if (rpc === "seed_open_list") return json(200, [...w.rows.values()]);
+      if (rpc === "seed_open_put") {
+        if (!w.rows.has(oid)) w.rows.set(oid, { seed: a.p_seed, question: a.p_question, model: a.p_model, answer: a.p_answer, sha256: a.p_sha256, drawn_by: a.p_who, drawn_at: "2026-10-06T11:00:00Z" });
+        return json(200, w.rows.get(oid));
+      }
+    }
     if (rpc === "seed_svc_teams") return json(200, Object.entries(w.members).filter(([, m]: any) => m[a.p_email]).map(([team, m]: any) => ({ team, role: m[a.p_email] })));
     if (!role(a.p_team, a.p_email)) return notMember();
     const id = `${a.p_team}/${a.p_key}`;
@@ -70,8 +81,8 @@ const ASK = { action: "ask", team: "pricing", seed: "42", question: "What is X?"
 
 test("the first ask draws once and a teammate's ask replays it", async () => {
   const w = world();
-  const first = await call(w, "tok-asha", ASK);
-  const second = await call(w, "tok-bob", ASK);
+  const first = await call(w, "h.asha.s", ASK);
+  const second = await call(w, "h.bob.s", ASK);
   assert.deepEqual([first.status, first.body.status, first.body.row.answer], [200, "first", "draw 1"]);
   assert.deepEqual([second.status, second.body.status, second.body.row.answer, second.body.row.drawn_by], [200, "replayed", "draw 1", "asha@example.com"]);
   assert.equal(w.draws, 1);
@@ -79,7 +90,7 @@ test("the first ask draws once and a teammate's ask replays it", async () => {
 
 test("the saved row carries the signed-in email, the fingerprint and the same key the /seed command uses", async () => {
   const w = world();
-  await call(w, "tok-asha", ASK);
+  await call(w, "h.asha.s", ASK);
   const put = w.calls.find((c: any) => c.url.endsWith("/seed_svc_put"))!.body;
   assert.equal(put.p_email, "asha@example.com");
   assert.equal(put.p_sha256, sha("draw 1"));
@@ -89,7 +100,7 @@ test("the saved row carries the signed-in email, the fingerprint and the same ke
 
 test("the model is called with the model key and only the question", async () => {
   const w = world();
-  await call(w, "tok-asha", ASK);
+  await call(w, "h.asha.s", ASK);
   const m = w.calls.find((c: any) => c.url.includes("anthropic"))!;
   assert.equal(m.headers["x-api-key"], "MODEL-KEY");
   assert.deepEqual(m.body.messages, [{ role: "user", content: "What is X?" }]);
@@ -97,43 +108,70 @@ test("the model is called with the model key and only the question", async () =>
 
 test("if a teammate saves first, their answer is returned", async () => {
   const w = world({ beforePut: (w, a) => w.rows.set(`${a.p_team}/${a.p_key}`, { seed: "42", question: "What is X?", model: "haiku", answer: "theirs", sha256: sha("theirs"), drawn_by: "bob@example.com", drawn_at: "t" }) });
-  const out = await call(w, "tok-asha", ASK);
+  const out = await call(w, "h.asha.s", ASK);
   assert.deepEqual([out.body.status, out.body.row.answer, out.body.row.drawn_by], ["lost-race", "theirs", "bob@example.com"]);
 });
 
-test("no sign-in is refused before anything else happens", async () => {
+test("without a sign-in, a closed team is refused and the model is not asked", async () => {
   const w = world();
   const out = await call(w, null, ASK);
-  assert.equal(out.status, 401);
-  assert.equal(w.calls.length, 0);
+  assert.deepEqual([out.status, out.body.error], [403, "this team is not open, sign in to use it"]);
+  assert.equal(w.draws, 0);
 });
 
-test("an invalid sign-in is refused", async () => {
+const OPEN = { action: "ask", team: "demo", seed: "42", question: "What is X?", name: "Asha" };
+
+test("without a sign-in, an open team works and records the typed name as a guest", async () => {
   const w = world();
-  assert.equal((await call(w, "tok-nobody", ASK)).status, 401);
+  const first = await call(w, null, OPEN);
+  const second = await call(w, null, { ...OPEN, name: "Bob" });
+  assert.deepEqual([first.status, first.body.status, first.body.row.drawn_by], [200, "first", "guest: Asha"]);
+  assert.deepEqual([second.body.status, second.body.row.answer, second.body.row.drawn_by], ["replayed", "draw 1", "guest: Asha"]);
+  assert.equal(w.draws, 1);
+  assert.equal(w.calls.some((c: any) => c.url.endsWith("/auth/v1/user")), false);
+});
+
+test("the app's public key as the bearer counts as no sign-in", async () => {
+  const w = world();
+  const out = await call(w, "sb_publishable_abc", OPEN);
+  assert.deepEqual([out.status, out.body.status], [200, "first"]);
+});
+
+test("a guest sees the open teams, gets a default name, and cannot manage people", async () => {
+  const w = world();
+  assert.deepEqual((await call(w, null, { action: "me" })).body, { email: null, guest: true, teams: [{ team: "demo", role: "guest" }] });
+  assert.equal((await call(w, null, { ...OPEN, name: "  " })).body.row.drawn_by, "guest: guest");
+  assert.equal((await call(w, null, { action: "list", team: "demo" })).body.rows.length, 1);
+  assert.equal((await call(w, null, { action: "add_member", team: "demo", email: "x@example.com" })).status, 403);
+  assert.equal((await call(w, null, { action: "members", team: "demo" })).status, 403);
+});
+
+test("an expired or invalid sign-in is refused, not treated as a guest", async () => {
+  const w = world();
+  assert.equal((await call(w, "aaa.bbb.ccc", OPEN)).status, 401);
   assert.equal(w.draws, 0);
 });
 
 test("someone outside the team is refused and the model is not asked", async () => {
   const w = world();
-  const out = await call(w, "tok-eve", ASK);
+  const out = await call(w, "h.eve.s", ASK);
   assert.deepEqual([out.status, out.body.error], [403, "you are not a member of this team"]);
   assert.equal(w.draws, 0);
 });
 
 test("a model failure saves nothing", async () => {
   const w = world({ modelFails: true });
-  const out = await call(w, "tok-asha", ASK);
+  const out = await call(w, "h.asha.s", ASK);
   assert.equal(out.status, 502);
   assert.equal(w.rows.size, 0);
 });
 
 test("a stored answer that does not match its fingerprint is not returned", async () => {
   const w = world();
-  await call(w, "tok-asha", ASK);
+  await call(w, "h.asha.s", ASK);
   const [id, row] = [...w.rows.entries()][0];
   w.rows.set(id, { ...row, answer: "forged" });
-  const out = await call(w, "tok-bob", ASK);
+  const out = await call(w, "h.bob.s", ASK);
   assert.equal(out.status, 409);
   assert.equal(JSON.stringify(out.body).includes("forged"), false);
 });
@@ -141,18 +179,18 @@ test("a stored answer that does not match its fingerprint is not returned", asyn
 test("bad input is refused", async () => {
   const w = world();
   for (const bad of [{ ...ASK, seed: "has space" }, { ...ASK, seed: "" }, { ...ASK, question: "  " }, { ...ASK, team: "Bad Team" }, { action: "nope" }]) {
-    assert.equal((await call(w, "tok-asha", bad)).status, 400);
+    assert.equal((await call(w, "h.asha.s", bad)).status, 400);
   }
   assert.equal(w.draws, 0);
 });
 
 test("me lists my teams, list shows saved answers, an admin can add a person and a member cannot", async () => {
   const w = world();
-  assert.deepEqual((await call(w, "tok-asha", { action: "me" })).body, { email: "asha@example.com", teams: [{ team: "pricing", role: "admin" }] });
-  await call(w, "tok-asha", ASK);
-  assert.equal((await call(w, "tok-bob", { action: "list", team: "pricing" })).body.rows.length, 1);
-  assert.equal((await call(w, "tok-bob", { action: "add_member", team: "pricing", email: "carol@example.com" })).status, 403);
-  const added = await call(w, "tok-asha", { action: "add_member", team: "pricing", email: "Carol@Example.com" });
+  assert.deepEqual((await call(w, "h.asha.s", { action: "me" })).body, { email: "asha@example.com", teams: [{ team: "pricing", role: "admin" }] });
+  await call(w, "h.asha.s", ASK);
+  assert.equal((await call(w, "h.bob.s", { action: "list", team: "pricing" })).body.rows.length, 1);
+  assert.equal((await call(w, "h.bob.s", { action: "add_member", team: "pricing", email: "carol@example.com" })).status, 403);
+  const added = await call(w, "h.asha.s", { action: "add_member", team: "pricing", email: "Carol@Example.com" });
   assert.equal(added.body.members.some((m: any) => m.email === "carol@example.com"), true);
 });
 
@@ -161,14 +199,14 @@ test("browsers are allowed to call it from another site, and no key appears in a
   const pre = await call(w, null, null, "OPTIONS");
   assert.equal(pre.status, 204);
   assert.equal(pre.headers.get("access-control-allow-origin"), "*");
-  const out = await call(w, "tok-asha", ASK);
+  const out = await call(w, "h.asha.s", ASK);
   assert.equal(out.headers.get("access-control-allow-origin"), "*");
   assert.equal(/SERVICE-KEY|MODEL-KEY/.test(JSON.stringify(out.body)), false);
 });
 
 test("a missing model key is reported clearly and nothing is drawn", async () => {
   const w = world();
-  const r = await handle(new Request("https://proj.example/functions/v1/seed", { method: "POST", headers: { Authorization: "Bearer tok-asha" }, body: JSON.stringify(ASK) }), { ...ENV, ANTHROPIC_API_KEY: "" }, w.fetch);
+  const r = await handle(new Request("https://proj.example/functions/v1/seed", { method: "POST", headers: { Authorization: "Bearer h.asha.s" }, body: JSON.stringify(ASK) }), { ...ENV, ANTHROPIC_API_KEY: "" }, w.fetch);
   assert.equal(r.status, 500);
   assert.match((await r.json()).error, /GEMINI_API_KEY/);
 });
@@ -177,7 +215,7 @@ const GEM = { SUPABASE_URL: ENV.SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY: ENV.SUP
 
 test("with a Gemini key the service asks Gemini, and saves which model answered", async () => {
   const w = world();
-  const out = await call(w, "tok-asha", ASK, "POST", GEM);
+  const out = await call(w, "h.asha.s", ASK, "POST", GEM);
   assert.deepEqual([out.status, out.body.status, out.body.row.answer], [200, "first", "gem 1"]);
   const m = w.calls.find((c: any) => c.url.includes("generativelanguage"))!;
   assert.equal(m.headers["x-goog-api-key"], "GEM-KEY");
@@ -190,13 +228,13 @@ test("with a Gemini key the service asks Gemini, and saves which model answered"
 
 test("if the first Gemini model is not offered to this key, the next one is tried", async () => {
   const w = world({ missingModels: ["gemini-3.8-flash"] });
-  const out = await call(w, "tok-asha", ASK, "POST", GEM);
+  const out = await call(w, "h.asha.s", ASK, "POST", GEM);
   assert.deepEqual([out.body.status, out.body.row.model], ["first", "gemini-3.5-flash-lite"]);
 });
 
 test("a model named in SEED_MODEL is the only one tried", async () => {
   const w = world({ missingModels: ["my-model"] });
-  const out = await call(w, "tok-asha", ASK, "POST", { ...GEM, SEED_MODEL: "my-model" });
+  const out = await call(w, "h.asha.s", ASK, "POST", { ...GEM, SEED_MODEL: "my-model" });
   assert.equal(out.status, 502);
   assert.equal(w.calls.filter((c: any) => c.url.includes("generativelanguage")).length, 1);
 });
