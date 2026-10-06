@@ -1,3 +1,4 @@
 .claude-plugin/types/
 .seed-token
+.seed-user
 seed.config.json

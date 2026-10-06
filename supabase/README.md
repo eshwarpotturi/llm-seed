@@ -60,8 +60,9 @@ export SEED_TEAM_TOKEN='the-64-character-token'
 export SEED_USER='your-name'
 ```
 
-or save the token alone in a file named `.seed-token` in the project folder.
-This repository's `.gitignore` already keeps that file out of git.
+or save the token alone in a file named `.seed-token` in the project folder, and
+your name in a file named `.seed-user`. This repository's `.gitignore` already
+keeps both files out of git.
 
 ## 6. Try it
 

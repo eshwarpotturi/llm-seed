@@ -147,3 +147,10 @@ test('the token can come from a .seed-token file when the variable is not set', 
   expect(out.text).toContain('first draw, pinned in the team store')
   expect(s.calls[0]!.args.p_token).toEqual('team-token')
 })
+
+test('the name can come from a .seed-user file when no variable is set', async ($, on) => {
+  disk(on, { 'seed.config.json': CONFIG, '.seed-user': 'eswar\n' }); const s = store(on); model(on); mock.env(on, { SEED_TEAM_TOKEN: 'team-token' })
+  const out = await $.command.run({ command: 'seed', args: ASK })
+  expect(out.text).toContain('drawn by eswar')
+  expect(s.calls[0]!.args.p_who).toEqual('eswar')
+})

@@ -57,6 +57,7 @@ const footer = (p: Pinned, how: string) =>
 const TEAM_SEED = /^([a-z0-9][a-z0-9-]{0,39})\/(\S+)$/
 const CONFIG_FILE = 'seed.config.json'
 const TOKEN_FILE = '.seed-token'
+const USER_FILE = '.seed-user'
 
 type Row = { seed: string; model: string; answer: string; sha256: string; drawn_by: string; drawn_at: string }
 type Ask = { team: string; seed: string; question: string; model: string }
@@ -116,7 +117,9 @@ async function teamSeed($: Engine, ask: Ask, sha256: Sha): Promise<string> {
   let token = await $.env.get('SEED_TEAM_TOKEN')
   if (!token && (await $.fs.exists(TOKEN_FILE))) token = (await $.fs.read(TOKEN_FILE)).trim()
   if (!token) return NO_TOKEN
-  const who = (await $.env.get('SEED_USER')) || (await $.env.get('USER')) || 'unknown'
+  let who = await $.env.get('SEED_USER')
+  if (!who && (await $.fs.exists(USER_FILE))) who = (await $.fs.read(USER_FILE)).trim()
+  who = who || (await $.env.get('USER')) || 'unknown'
   const key = await sha256(`${ask.model}\n${ask.seed}\n${ask.question}`)
   const base = { p_team: ask.team, p_token: token, p_key: key }
   const refused = (what: string) => `${what} Nothing was pinned to seed ${ask.team}/${ask.seed}.`
