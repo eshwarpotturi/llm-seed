@@ -286,7 +286,9 @@ command, with answers that are shared through the project.
 | Setup | None | [`supabase/README.md`](supabase/README.md) | [`supabase/APP.md`](supabase/APP.md) |
 
 The web app is at https://eshwarpotturi.github.io/llm-seed/app/. Team seeds and the
-web app share one notebook: an answer saved from either is replayed by both.
+web app share one store. An answer saved from either is replayed by both when
+both use the same model family. With the free Gemini key, the web app's answers
+are kept apart from the Claude answers the `/seed` command saves.
 
 ## Team seeds: the same answer for every teammate
 
@@ -347,7 +349,7 @@ The page is built from that file: `python3 site/build.py` fills
 | `hooks/register.ts` | The whole mod, about 190 lines |
 | `hooks/seed.test.ts`, `hooks/team.test.ts` | 19 tests |
 | `supabase/setup.sql`, `supabase/app.sql`, `supabase/test.sh` | The store's tables and rules, and their 35 checks |
-| `supabase/functions/seed/index.ts`, `check.ts` | The web app's service and its 13 tests (`node --experimental-strip-types --test supabase/functions/seed/check.ts`) |
+| `supabase/functions/seed/index.ts`, `check.ts` | The web app's service and its 16 tests (`node --experimental-strip-types --test supabase/functions/seed/check.ts`) |
 | `app/index.html` | The web app |
 
 ```bash

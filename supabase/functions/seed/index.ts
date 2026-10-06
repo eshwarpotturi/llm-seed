@@ -5,12 +5,14 @@
 // is one, and otherwise (4) asks the model once and saves the answer, where the
 // first save wins. The browser never sees a key and never touches the database.
 //
-// Secrets this function needs (Supabase > Edge Functions > Secrets):
-//   ANTHROPIC_API_KEY   the model key
+// Secrets this function needs (Supabase > Edge Functions > Secrets), one of:
+//   GEMINI_API_KEY      a Google Gemini key (has a free tier), or
+//   ANTHROPIC_API_KEY   an Anthropic key. If both are set, Anthropic is used.
 // Optional:
-//   SEED_MODEL          the model to call (default below)
-//   SEED_MODEL_LABEL    the short name stored with answers and used in the key (default "haiku",
-//                       the same as the /seed command, so both share saved answers)
+//   SEED_MODEL          the exact model to call (defaults below)
+//   SEED_MODEL_LABEL    the short name used in the seed's key. Default "haiku" with an Anthropic key,
+//                       the same as the /seed command so both share saved answers, and "gemini"
+//                       with a Gemini key, so answers from different model families never mix.
 
 declare const Deno: any;
 
@@ -18,7 +20,9 @@ type Env = Record<string, string | undefined>;
 type Fetch = (url: string, init?: RequestInit) => Promise<Response>;
 type Row = { seed: string; question: string; model: string; answer: string; sha256: string; drawn_by: string; drawn_at: string };
 
-const DEFAULT_MODEL = "claude-haiku-4-5-20251001";
+const ANTHROPIC_MODEL = "claude-haiku-4-5-20251001";
+// Tried in order until one answers. Which models a free key may use changes over time.
+const GEMINI_MODELS = ["gemini-3.8-flash", "gemini-3.5-flash-lite", "gemini-3.1-flash-lite"];
 const CORS = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, apikey, content-type, x-client-info",
@@ -89,7 +93,8 @@ export async function handle(req: Request, env: Env, fetcher: Fetch): Promise<Re
     if (!seed || seed.length > 40 || /\s/.test(seed)) throw new Problem(400, "give the seed a short name with no spaces");
     if (!question || question.length > 4000) throw new Problem(400, "type a question of up to 4,000 characters");
 
-    const label = env.SEED_MODEL_LABEL || "haiku";
+    const useGemini = !env.ANTHROPIC_API_KEY && !!env.GEMINI_API_KEY;
+    const label = env.SEED_MODEL_LABEL || (useGemini ? "gemini" : "haiku");
     const key = await sha256(`${label}\n${seed}\n${question}`);
     const checked = async (row: Row, status: string) => {
       if ((await sha256(row.answer)) !== row.sha256) throw new Problem(409, "the saved answer does not match its fingerprint, so it is not shown");
@@ -101,19 +106,38 @@ export async function handle(req: Request, env: Env, fetcher: Fetch): Promise<Re
     if (saved) return await checked(saved, "replayed");
 
     // 4. Ask the model once, then save. If a teammate saved first, theirs is kept and returned.
-    if (!env.ANTHROPIC_API_KEY) throw new Problem(500, "the service has no model key yet: add ANTHROPIC_API_KEY to its secrets");
-    const m = await fetcher("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: { "x-api-key": env.ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01", "Content-Type": "application/json" },
-      body: JSON.stringify({ model: env.SEED_MODEL || DEFAULT_MODEL, max_tokens: 1024, messages: [{ role: "user", content: question }] }),
-    });
-    const out = (await m.json().catch(() => null)) as { content?: { type: string; text?: string }[] } | null;
-    const text = m.ok ? (out?.content ?? []).filter((c) => c.type === "text").map((c) => c.text ?? "").join("").trim() : "";
-    if (!text) throw new Problem(502, `the model did not answer (status ${m.status}), so nothing was saved`);
+    if (!env.ANTHROPIC_API_KEY && !env.GEMINI_API_KEY) {
+      throw new Problem(500, "the service has no model key yet: add GEMINI_API_KEY or ANTHROPIC_API_KEY to its secrets");
+    }
+    let text = "", model = label, lastStatus = 0;
+    if (useGemini) {
+      for (const candidate of env.SEED_MODEL ? [env.SEED_MODEL] : GEMINI_MODELS) {
+        const g = await fetcher(`https://generativelanguage.googleapis.com/v1beta/models/${candidate}:generateContent`, {
+          method: "POST",
+          headers: { "x-goog-api-key": env.GEMINI_API_KEY!, "Content-Type": "application/json" },
+          body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: question }] }] }),
+        });
+        lastStatus = g.status;
+        const out = (await g.json().catch(() => null)) as { candidates?: { content?: { parts?: { text?: string }[] } }[] } | null;
+        text = g.ok ? (out?.candidates?.[0]?.content?.parts ?? []).map((p) => p.text ?? "").join("").trim() : "";
+        if (text) { model = candidate; break; }
+        if (![403, 404, 429].includes(g.status)) break; // only move on when this model is not offered to this key
+      }
+    } else {
+      const m = await fetcher("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: { "x-api-key": env.ANTHROPIC_API_KEY!, "anthropic-version": "2023-06-01", "Content-Type": "application/json" },
+        body: JSON.stringify({ model: env.SEED_MODEL || ANTHROPIC_MODEL, max_tokens: 1024, messages: [{ role: "user", content: question }] }),
+      });
+      lastStatus = m.status;
+      const out = (await m.json().catch(() => null)) as { content?: { type: string; text?: string }[] } | null;
+      text = m.ok ? (out?.content ?? []).filter((c) => c.type === "text").map((c) => c.text ?? "").join("").trim() : "";
+    }
+    if (!text) throw new Problem(502, `the model did not answer (status ${lastStatus}), so nothing was saved`);
 
     const mine = await sha256(text);
     const stored = (await rpc("seed_svc_put", {
-      p_team: team, p_email: email, p_key: key, p_seed: seed, p_question: question, p_model: label, p_answer: text, p_sha256: mine,
+      p_team: team, p_email: email, p_key: key, p_seed: seed, p_question: question, p_model: model, p_answer: text, p_sha256: mine,
     })) as Row;
     return await checked(stored, stored.sha256 === mine && stored.drawn_by === email ? "first" : "lost-race");
   } catch (e) {

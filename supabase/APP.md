@@ -29,15 +29,28 @@ the app.
 3. Replace the sample code with the whole of
    [`functions/seed/index.ts`](functions/seed/index.ts) and press **Deploy**.
 
-## 4. Give the service its model key
+## 4. Give the service a model key
 
-In **Edge Functions**, open **Secrets** and add:
+The service needs a key to a model. A free one works.
+
+**Free: a Google Gemini key**
+
+1. Open https://aistudio.google.com/apikey and sign in with a Google account.
+2. Press **Create API key** and copy it.
+3. In Supabase, open **Edge Functions**, then **Secrets**, and add:
 
 | Name | Value |
 |---|---|
-| `ANTHROPIC_API_KEY` | your Anthropic API key |
+| `GEMINI_API_KEY` | the key you copied |
+
+**Or paid: an Anthropic key.** Add it as `ANTHROPIC_API_KEY` instead. If both are
+set, the Anthropic key is used.
 
 The key stays inside Supabase. The web page never sees it.
+
+Answers from the two model families are kept apart: the model family is part of
+each seed's key. So a seed saved with Gemini is not replayed by the `/seed`
+command, which uses Claude, and the other way round.
 
 ## 5. Tell Supabase where the app lives
 
@@ -60,6 +73,7 @@ link that arrives. Choose your team, type a seed and a question, and press Ask.
 | "The seed service could not be reached" | The function is not deployed, or is not named `seed` |
 | A 401 "Invalid JWT" from the function | In the function's settings, turn off "Verify JWT". The function checks sign-in itself |
 | "the service has no model key yet" | Step 4 was skipped, or the secret has a different name |
+| "the model did not answer (status 429)" | The free key has hit its limit for now. Wait a minute and ask again |
 | "you are not a member of this team" | Your sign-in email is not the one added in step 2 |
 | The sign-in email never arrives | The free plan sends only a few emails an hour. Wait and try again, and check spam |
 
@@ -81,6 +95,6 @@ link that arrives. Choose your team, type a seed and a question, and press Ask.
   nothing and cannot ask.
 - **The model key is billed to whoever owns it.** Every first draw by any member
   uses it. Replays cost nothing.
-- **Tested so far:** 35 database checks on Postgres 16, 13 tests of the service
+- **Tested so far:** 35 database checks on Postgres 16, 16 tests of the service
   with stand-ins for Supabase and the model, and the page's screens with a
   stand-in service. See the main README for what has run on the live project.

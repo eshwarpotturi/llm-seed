@@ -10,7 +10,7 @@ const sha = (t: string) => createHash("sha256").update(t).digest("hex");
 const json = (status: number, body: unknown) => new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } });
 
 /** A stand-in for Supabase and the model, with the same rules as supabase/app.sql. */
-function world(opts: { modelFails?: boolean; beforePut?: (w: any, a: any) => void } = {}) {
+function world(opts: { modelFails?: boolean; missingModels?: string[]; beforePut?: (w: any, a: any) => void } = {}) {
   const w: any = {
     users: { "tok-asha": "asha@example.com", "tok-bob": "bob@example.com", "tok-eve": "eve@example.com" },
     members: { pricing: { "asha@example.com": "admin", "bob@example.com": "member" } },
@@ -25,6 +25,12 @@ function world(opts: { modelFails?: boolean; beforePut?: (w: any, a: any) => voi
     if (url === "https://proj.example/auth/v1/user") {
       const email = w.users[(headers.authorization ?? "").replace("Bearer ", "")];
       return email ? json(200, { email }) : json(401, { msg: "invalid JWT" });
+    }
+    const gem = /^https:\/\/generativelanguage\.googleapis\.com\/v1beta\/models\/([^:]+):generateContent$/.exec(url)?.[1];
+    if (gem) {
+      if (opts.modelFails) return json(503, { error: { message: "overloaded" } });
+      if ((opts as any).missingModels?.includes(gem)) return json(404, { error: { message: "model not found" } });
+      return json(200, { candidates: [{ content: { parts: [{ text: `gem ${++w.draws}` }] } }] });
     }
     if (url === "https://api.anthropic.com/v1/messages") {
       if (opts.modelFails) return json(529, { error: { message: "overloaded" } });
@@ -54,10 +60,10 @@ function world(opts: { modelFails?: boolean; beforePut?: (w: any, a: any) => voi
   return w;
 }
 
-const call = async (w: any, token: string | null, body: unknown, method = "POST") => {
+const call = async (w: any, token: string | null, body: unknown, method = "POST", env: Record<string, string> = ENV) => {
   const headers: Record<string, string> = { "Content-Type": "application/json" };
   if (token) headers.Authorization = `Bearer ${token}`;
-  const r = await handle(new Request("https://proj.example/functions/v1/seed", { method, headers, body: method === "POST" ? JSON.stringify(body) : undefined }), ENV, w.fetch);
+  const r = await handle(new Request("https://proj.example/functions/v1/seed", { method, headers, body: method === "POST" ? JSON.stringify(body) : undefined }), env, w.fetch);
   return { status: r.status, headers: r.headers, body: r.status === 204 ? null : await r.json() };
 };
 const ASK = { action: "ask", team: "pricing", seed: "42", question: "What is X?" };
@@ -164,5 +170,33 @@ test("a missing model key is reported clearly and nothing is drawn", async () =>
   const w = world();
   const r = await handle(new Request("https://proj.example/functions/v1/seed", { method: "POST", headers: { Authorization: "Bearer tok-asha" }, body: JSON.stringify(ASK) }), { ...ENV, ANTHROPIC_API_KEY: "" }, w.fetch);
   assert.equal(r.status, 500);
-  assert.match((await r.json()).error, /ANTHROPIC_API_KEY/);
+  assert.match((await r.json()).error, /GEMINI_API_KEY/);
+});
+
+const GEM = { SUPABASE_URL: ENV.SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY: ENV.SUPABASE_SERVICE_ROLE_KEY, GEMINI_API_KEY: "GEM-KEY" };
+
+test("with a Gemini key the service asks Gemini, and saves which model answered", async () => {
+  const w = world();
+  const out = await call(w, "tok-asha", ASK, "POST", GEM);
+  assert.deepEqual([out.status, out.body.status, out.body.row.answer], [200, "first", "gem 1"]);
+  const m = w.calls.find((c: any) => c.url.includes("generativelanguage"))!;
+  assert.equal(m.headers["x-goog-api-key"], "GEM-KEY");
+  assert.deepEqual(m.body.contents, [{ role: "user", parts: [{ text: "What is X?" }] }]);
+  const put = w.calls.find((c: any) => c.url.endsWith("/seed_svc_put"))!.body;
+  assert.equal(put.p_key, sha("gemini\n42\nWhat is X?"));
+  assert.equal(put.p_model, "gemini-3.8-flash");
+  assert.equal(w.calls.some((c: any) => c.url.includes("anthropic")), false);
+});
+
+test("if the first Gemini model is not offered to this key, the next one is tried", async () => {
+  const w = world({ missingModels: ["gemini-3.8-flash"] });
+  const out = await call(w, "tok-asha", ASK, "POST", GEM);
+  assert.deepEqual([out.body.status, out.body.row.model], ["first", "gemini-3.5-flash-lite"]);
+});
+
+test("a model named in SEED_MODEL is the only one tried", async () => {
+  const w = world({ missingModels: ["my-model"] });
+  const out = await call(w, "tok-asha", ASK, "POST", { ...GEM, SEED_MODEL: "my-model" });
+  assert.equal(out.status, 502);
+  assert.equal(w.calls.filter((c: any) => c.url.includes("generativelanguage")).length, 1);
 });
