@@ -96,6 +96,19 @@ begin
   return token;
 end $$;
 
+-- Run by you in the SQL editor when a token is lost or has been seen by the wrong person.
+-- The old token stops working at once. The team's saved answers are kept.
+-- Example:  select seed_reset_token('pricing');
+create or replace function public.seed_reset_token(p_team text) returns text
+language plpgsql security definer set search_path = public as $$
+declare token text := replace(gen_random_uuid()::text || gen_random_uuid()::text, '-', '');
+begin
+  update seed_teams set token_hash = encode(sha256(convert_to(token, 'UTF8')), 'hex') where team = p_team;
+  if not found then raise exception 'no team named %', p_team; end if;
+  return token;
+end $$;
+
+revoke all on function public.seed_reset_token(text) from public, anon, authenticated;
 revoke all on function public.seed_check(text, text) from public, anon, authenticated;
 revoke all on function public.seed_new_team(text) from public, anon, authenticated;
 revoke all on function public.seed_get(text, text, text, text) from public;

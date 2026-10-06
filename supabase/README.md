@@ -30,6 +30,13 @@ The result is the **team token**, a 64-character code. It is shown once and only
 a scrambled copy is stored, so copy it now. Give it to teammates privately. Do not
 put it in a repository, a chat or a slide.
 
+If a token is lost, or the wrong person has seen it, issue a new one. The old one
+stops working at once and the team's saved answers are kept:
+
+```sql
+select seed_reset_token('demo');
+```
+
 ## 4. Point the mod at the store
 
 1. In Supabase, open **Project Settings**, then **API**. Copy the **Project URL**
@@ -89,5 +96,5 @@ ask in `seed_events`.
   so the name in `drawn by` is whatever that person set and is not verified.
 - **Free Supabase projects pause when unused.** Open the project the day before a
   demo.
-- **`setup.sql` is tested on Postgres 16** with `sh supabase/test.sh` (14 checks).
-  It has not been run on a real Supabase project yet.
+- **`setup.sql` is tested on Postgres 16** with `sh supabase/test.sh` (19 checks),
+  and has been run on one real Supabase project.

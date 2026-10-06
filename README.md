@@ -299,10 +299,12 @@ If the store cannot be reached, or the token is wrong, the mod says so and pins
 nothing. It never falls back to a local answer for a team seed, because that would
 let teammates drift apart.
 
-Tested so far: 19 mod tests with a stand-in store, 14 checks of the database
+Tested so far: 19 mod tests with a stand-in store, 19 checks of the database
 script on a real Postgres, and an end-to-end run with two simulated teammates in
 separate folders against a local copy of the store, including three simultaneous
-draws. Not yet tested: a real Supabase project, and two real accounts.
+draws. It also ran against a real Supabase project on 6 October 2026: one simulated
+teammate drew, the other replayed the same answer, and a wrong token was refused.
+Not yet tested: two real accounts on separate machines.
 
 ## The experiment behind the project page
 
@@ -331,7 +333,7 @@ The page is built from that file: `python3 site/build.py` fills
 | `hooks/hooks.json` | Points Claude Code at the code |
 | `hooks/register.ts` | The whole mod, about 190 lines |
 | `hooks/seed.test.ts`, `hooks/team.test.ts` | 19 tests |
-| `supabase/setup.sql`, `supabase/test.sh` | The team store's tables and rules, and their 14 checks |
+| `supabase/setup.sql`, `supabase/test.sh` | The team store's tables and rules, and their 19 checks |
 
 ```bash
 claude plugin validate .

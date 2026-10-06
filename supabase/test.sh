@@ -31,4 +31,12 @@ ROLE=postgres
 check "only the hash of the token is stored"   "$(Q "select count(*) from seed_teams where token_hash = '$TOKEN'")" "^0$"
 check "events record draw, lost race, replay"  "$(Q "select string_agg(action || ':' || who, ',' order by id) from seed_events")" "draw:alice,lost-race:bob,replay:bob"
 check "exactly one answer is stored"           "$(Q "select count(*) from seed_answers")" "^1$"
+NEW=$(Q "select seed_reset_token('pricing')")
+ROLE=anon_login
+check "a reset gives a new 64-character token"  "$(printf %s "$NEW" | wc -c)" "^64$"
+check "the old token stops working"             "$(Q "select seed_get('pricing','$TOKEN','$K','alice')")" "unknown team or wrong token"
+check "the new token reads the same answers"    "$(Q "select seed_get('pricing','$NEW','$K','alice')")" '"answer":"first answer"'
+check "the mod cannot reset a token"            "$(Q "select seed_reset_token('pricing')")" "permission denied"
+ROLE=postgres
+check "resetting an unknown team is an error"   "$(Q "select seed_reset_token('nobody')")" "no team named nobody"
 echo "$pass passed, $fail failed"; [ "$fail" = 0 ]
