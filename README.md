@@ -347,7 +347,7 @@ The page is built from that file: `python3 site/build.py` fills
 | `hooks/register.ts` | The whole mod, about 190 lines |
 | `hooks/seed.test.ts`, `hooks/team.test.ts` | 19 tests |
 | `supabase/setup.sql`, `supabase/app.sql`, `supabase/test.sh` | The store's tables and rules, and their 35 checks |
-| `supabase/functions/seed/index.ts` and its test | The web app's service, 13 tests |
+| `supabase/functions/seed/index.ts`, `check.ts` | The web app's service and its 13 tests (`node --experimental-strip-types --test supabase/functions/seed/check.ts`) |
 | `app/index.html` | The web app |
 
 ```bash

@@ -1,4 +1,4 @@
-// Run with:  node --experimental-strip-types --test supabase/functions/seed/index.test.ts
+// Run with:  node --experimental-strip-types --test supabase/functions/seed/check.ts
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import test from "node:test";
