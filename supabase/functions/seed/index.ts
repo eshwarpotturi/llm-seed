@@ -127,7 +127,9 @@ export async function handle(req: Request, env: Env, fetcher: Fetch): Promise<Re
     }
     let text = "", model = label, lastStatus = 0;
     if (useGemini) {
-      for (const candidate of env.SEED_MODEL ? [env.SEED_MODEL] : GEMINI_MODELS) {
+      // A busy model (503) is common on a free key, so every model is tried, twice over, before giving up.
+      const list = env.SEED_MODEL ? [env.SEED_MODEL] : GEMINI_MODELS;
+      for (const candidate of [...list, ...list]) {
         const g = await fetcher(`https://generativelanguage.googleapis.com/v1beta/models/${candidate}:generateContent`, {
           method: "POST",
           headers: { "x-goog-api-key": env.GEMINI_API_KEY!, "Content-Type": "application/json" },
@@ -137,7 +139,7 @@ export async function handle(req: Request, env: Env, fetcher: Fetch): Promise<Re
         const out = (await g.json().catch(() => null)) as { candidates?: { content?: { parts?: { text?: string }[] } }[] } | null;
         text = g.ok ? (out?.candidates?.[0]?.content?.parts ?? []).map((p) => p.text ?? "").join("").trim() : "";
         if (text) { model = candidate; break; }
-        if (![403, 404, 429].includes(g.status)) break; // only move on when this model is not offered to this key
+        if (g.status === 400 || g.status === 401) break; // a bad request or bad key fails the same way on every model
       }
     } else {
       const m = await fetcher("https://api.anthropic.com/v1/messages", {

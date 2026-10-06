@@ -28,6 +28,7 @@ function world(opts: { modelFails?: boolean; missingModels?: string[]; beforePut
     }
     const gem = /^https:\/\/generativelanguage\.googleapis\.com\/v1beta\/models\/([^:]+):generateContent$/.exec(url)?.[1];
     if (gem) {
+      if ((opts as any).busyModels?.includes(gem)) return json(503, { error: { message: "overloaded" } });
       if (opts.modelFails) return json(503, { error: { message: "overloaded" } });
       if ((opts as any).missingModels?.includes(gem)) return json(404, { error: { message: "model not found" } });
       return json(200, { candidates: [{ content: { parts: [{ text: `gem ${++w.draws}` }] } }] });
@@ -236,5 +237,16 @@ test("a model named in SEED_MODEL is the only one tried", async () => {
   const w = world({ missingModels: ["my-model"] });
   const out = await call(w, "h.asha.s", ASK, "POST", { ...GEM, SEED_MODEL: "my-model" });
   assert.equal(out.status, 502);
-  assert.equal(w.calls.filter((c: any) => c.url.includes("generativelanguage")).length, 1);
+  const asked = w.calls.filter((c: any) => c.url.includes("generativelanguage"));
+  assert.equal(asked.every((c: any) => c.url.includes("/my-model:")), true); // retried, but never another model
+});
+
+test("if the first Gemini model is busy (503), the next one answers", async () => {
+  const w = world({ busyModels: ["gemini-3.8-flash"] } as any);
+  const env = { SUPABASE_URL: ENV.SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY: ENV.SUPABASE_SERVICE_ROLE_KEY, GEMINI_API_KEY: "G-KEY" };
+  const req = new Request("https://proj.example/functions/v1/seed", { method: "POST", headers: { Authorization: "Bearer pub", apikey: "pub", "Content-Type": "application/json" }, body: JSON.stringify({ action: "ask", team: "demo", seed: "1", question: "hi", name: "eswar" }) });
+  const res = await handle(req, env, w.fetch);
+  const out = await res.json();
+  assert.equal(res.status, 200, JSON.stringify(out));
+  assert.equal(out.row.model, "gemini-3.5-flash-lite");
 });
