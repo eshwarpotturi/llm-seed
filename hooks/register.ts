@@ -13,8 +13,8 @@ export const MODEL = 'haiku'
 export const DIR = 'seeds'
 const USAGE =
   'Usage: /seed <seed> <question>\n' +
-  'Example: /seed 42 What does Straive do?\n' +
-  'Shared with a team: /seed pricing/42 What does Straive do?\n' +
+  'Example: /seed 42 What does our company do?\n' +
+  'Shared with a team: /seed pricing/42 What does our company do?\n' +
   'The same seed and question always give the identical answer. A new seed gives a fresh one.'
 
 export type Pinned = {
